@@ -7,6 +7,7 @@
 require "interactive_churn/version"
 require 'set'
 require 'oj'
+require 'csv'
 
 module InteractiveChurn
   class << self
@@ -22,23 +23,6 @@ module InteractiveChurn
       lines_deleted_other = 0
       author = nil
       authors_affected = Set.new 
-
-      # Run blame, once for this particular file, storing as we go
-      # * Leading up to the revision prior to that (hence the ^) 
-      # * -l for showing long revision names 
-      blame = Hash.new
-      blame_text = `git blame -l #{revision}^ -- #{file}`
-      blame_text.each_line do | blame_line | 
-        blame_line = blame_line.force_encoding("iso-8859-1")
-        line_number=blame_line[/[\d]+\)/].to_i
-        blame[line_number] = blame_line
-      end
-
-      # Determine the number of "effective authors"
-      effective_authors = Set.new
-      blame.each do | num,blame_line |
-        effective_authors << blame_line.split(/[(]/)[1].split(/[\d]{4}/)[0].chomp.strip
-      end
 
       #Use git log to show only that one file at the one revision, no diff context!
       patch_text = `git log -p --unified=0 -1 #{revision} -- #{file}`
@@ -65,6 +49,18 @@ module InteractiveChurn
           # Ok, add to the totals now
           lines_added += lines_added_num
           lines_deleted += lines_deleted_num
+
+          # Run blame, once for this particular file, storing as we go
+          # * Leading up to the revision prior to that (hence the ^) 
+          # * -l for showing long revision names 
+          blame = Hash.new
+          line_end = lines_deleted_start + lines_deleted_num
+          blame_text = `git blame -l -L #{lines_deleted_start},#{line_end} #{revision}^ -- #{file}`
+          blame_text.each_line do | blame_line | 
+            blame_line = blame_line.force_encoding("iso-8859-1")
+            line_number=blame_line[/[\d]+\)/].to_i
+            blame[line_number] = blame_line
+          end
 
           # Look it up in our blame hash
           if lines_deleted_num > 0 then
@@ -95,17 +91,14 @@ module InteractiveChurn
       comm_file_churn['lines_deleted_other'] = lines_deleted_self
       comm_file_churn['num_devs_affected'] = authors_affected.size
       comm_file_churn['devs_affected'] = authors_affected.to_a
-      comm_file_churn['num_effective_devs'] = effective_authors.size 
-      comm_file_churn['effective_devs'] = effective_authors.to_a
-      comm_file_churn['new_effective_dev'] = !effective_authors.include?(author.strip)
 
       print Oj.dump(comm_file_churn)
     end
 
     def get_data(file)
       valid_extns = ['.h','.cc','.js','.cpp','.gyp','.py','.c','.make','.sh','.S''.scons','.sb','Makefile']
-      text = File.open(file).read
       
+      text = File.open(file).read
       text.each_line do |rev|
         rev = rev.strip
         git_files = `git show --pretty="format:" --name-only #{rev}`
