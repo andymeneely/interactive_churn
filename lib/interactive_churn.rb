@@ -80,24 +80,22 @@ module InteractiveChurn
         end 
       }
 
-      comm_file_churn = Hash.new
-
-      comm_file_churn['commit'] = revision
-      comm_file_churn['filepath'] = file
-      comm_file_churn['total_churn'] = lines_added + lines_deleted
-      comm_file_churn['lines_added'] = lines_added
-      comm_file_churn['lines_deleted'] = lines_deleted
-      comm_file_churn['lines_deleted_self'] = lines_deleted_self
-      comm_file_churn['lines_deleted_other'] = lines_deleted_self
-      comm_file_churn['num_devs_affected'] = authors_affected.size
-      comm_file_churn['devs_affected'] = authors_affected.to_a
-
-      print Oj.dump(comm_file_churn)
+      CSV.open("../churnlog.csv", "a+") do |row|
+        row << [revision, file, lines_added + lines_deleted, lines_added, lines_deleted, lines_deleted_self, \
+                lines_deleted_other ,authors_affected.size,authors_affected.to_a ]
+      end
     end
 
     def get_data(file)
       valid_extns = ['.h','.cc','.js','.cpp','.gyp','.py','.c','.make','.sh','.S''.scons','.sb','Makefile']
+     
+      # create csv file with headers
+      CSV.open('../churnlog.csv','w+') do |headers|
+      headers << ["commit","filepath","total_churn","lines_added", "lines_deleted","lines_deleted_self", \
+                   "lines_deleted_other","num_devs_affected","devs_affected"]
+      end
       
+      #loop over every revision, get files, do get_churn on files for interactive churn data
       text = File.open(file).read
       text.each_line do |rev|
         rev = rev.strip
