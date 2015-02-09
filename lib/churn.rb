@@ -5,11 +5,14 @@ class Churn
     attr_accessor :root_directory
   end
 
-  def self.compute revision=""
+  def self.compute revision="HEAD"
     cwd = Dir.getwd
     begin
       Dir.chdir root_directory
       check_exceptions revision
+      output = %x[ git show -w -C --shortstat --format=format: #{revision} 2>&1 ].split(/\n/)[1]
+      insertions = output.match(/(\d*) insertion.*/)
+      insertions.nil? ? 0 : insertions[1].to_i
     rescue Errno::ENOENT
       raise StandardError, "#{Churn::COMMAND_NAME}: #{Churn.root_directory}: No such file or directory"
     rescue StandardError => e

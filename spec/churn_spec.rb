@@ -49,6 +49,17 @@ describe "Churn" do
       expect { Churn.compute revision }.to raise_error(StandardError, "#{COMMAND_NAME}: fatal: ambiguous argument '#{revision}': unknown revision or path not in the working tree.")
     end
 
+    it "computes the amount of inserted lines on the current branch and defaul revision HEAD" do
+      system("git init #{@directory_name}")
+      file_name = "a_file"
+      system("cd #{@directory_name} && echo 'line1' > #{file_name} && git add #{file_name} && git commit -m 'initial commit'")
+
+      Churn.root_directory = @directory_name
+      expect(Churn.compute).to eq(1)
+      system("cd #{@directory_name} && echo 'line1\nline2\nline3' > #{file_name} && git add #{file_name} && git commit -m 'initial commit'")
+      expect(Churn.compute).to eq(2)
+    end
+
     after(:each) do
       system("rm -r -f #{@directory_name}")
     end
