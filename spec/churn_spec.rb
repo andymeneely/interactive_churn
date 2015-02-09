@@ -10,4 +10,16 @@ describe "Churn" do
     Churn.root_directory = directory_name
     expect { Churn.compute }.to raise_error(StandardError, "ichurn: #{directory_name}: No such file or directory")
   end
+
+  it "has the same current directory before and after call compute" do
+    cwd = Dir.getwd
+    directory_name = Dir.getwd + "/.." + "/churn_test_directory"
+    system("mkdir #{directory_name}")
+
+    Churn.root_directory = directory_name
+    Churn.compute
+    expect(cwd).to eq(Dir.getwd)
+
+    system("rm -r -f #{directory_name}")
+  end
 end
