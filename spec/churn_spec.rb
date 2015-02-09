@@ -39,6 +39,16 @@ describe "Churn" do
       expect { Churn.compute }.to raise_error(StandardError, "#{COMMAND_NAME}: #{@directory_name}: fatal: bad default revision 'HEAD'")
     end
 
+    it "raises an exception if try to compute churn for an unknown revision" do
+      system("git init #{@directory_name}")
+      file_name = "a_file"
+      system("cd #{@directory_name} && touch #{file_name} && git add #{file_name} && git commit -m 'initial commit'")
+      revision = "UNKNOWN_REVISION"
+
+      Churn.root_directory = @directory_name
+      expect { Churn.compute revision }.to raise_error(StandardError, "#{COMMAND_NAME}: fatal: ambiguous argument '#{revision}': unknown revision or path not in the working tree.")
+    end
+
     after(:each) do
       system("rm -r -f #{@directory_name}")
     end

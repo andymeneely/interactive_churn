@@ -5,7 +5,7 @@ class Churn
     attr_accessor :root_directory
   end
 
-  def self.compute
+  def self.compute revision=""
     cwd = Dir.getwd
 
     raise StandardError, "#{Churn::COMMAND_NAME}: #{Churn.root_directory}: No such file or directory" unless Dir.exists?(root_directory)
@@ -20,6 +20,10 @@ class Churn
     Dir.chdir cwd
     raise StandardError, "ichurn: #{root_directory}: " + output unless output =~ /^commit/
 
+    Dir.chdir root_directory
+    output = %x[ git log -p -1 #{revision} 2>&1 ].split(/\n/)[0]
+    Dir.chdir cwd
+    raise StandardError, "ichurn: " + output unless output =~ /^commit/
 
   end
 
