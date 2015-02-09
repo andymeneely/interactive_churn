@@ -33,4 +33,15 @@ describe "Churn" do
     system("rm -r -f #{directory_name}")
   end
 
+  it "raises an exception if the root_directory is a git repository with no commits" do
+    directory_name = Dir.getwd + "/.." + "/churn_test_directory"
+    system("mkdir #{directory_name}")
+    system("git init #{directory_name}")
+
+    Churn.root_directory = directory_name
+    expect { Churn.compute }.to raise_error(StandardError, "ichurn: #{directory_name}: fatal: bad default revision 'HEAD'")
+
+    system("rm -r -f #{directory_name}")
+  end
+
 end

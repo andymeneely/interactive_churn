@@ -15,6 +15,11 @@ class Churn
     Dir.chdir cwd
     raise StandardError, "ichurn: #{root_directory}: " + output unless output =~ /^true/
 
+    Dir.chdir root_directory
+    output = %x[ git log -p -1 2>&1 ].tr("\n","")
+    Dir.chdir cwd
+    raise StandardError, "ichurn: #{root_directory}: " + output unless output =~ /^commit/
+
 
   end
 
