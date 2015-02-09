@@ -17,9 +17,20 @@ describe "Churn" do
     system("mkdir #{directory_name}")
 
     Churn.root_directory = directory_name
-    Churn.compute
+    Churn.compute rescue # => no matter if there is an exception, the expectation should be met
     expect(cwd).to eq(Dir.getwd)
 
     system("rm -r -f #{directory_name}")
   end
+
+  it "raises an exception if the root_directory is not a git repository" do
+    directory_name = Dir.getwd + "/.." + "/churn_test_directory"
+    system("mkdir #{directory_name}")
+
+    Churn.root_directory = directory_name
+    expect { Churn.compute }.to raise_error(StandardError, "ichurn: #{directory_name}: fatal: Not a git repository (or any of the parent directories): .git")
+
+    system("rm -r -f #{directory_name}")
+  end
+
 end
