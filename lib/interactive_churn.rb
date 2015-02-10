@@ -26,7 +26,7 @@ module InteractiveChurn
 
       #Use git log to show only that one file at the one revision, no diff context!
       patch_text = `git log -p --ignore-all-space --unified=0 -1 #{revision} -- #{file}`
-      patch_text.each_line { | line |
+      patch_text.each_line do | line |
         if line.start_with? "Author: " 
           author = line[8..line.index(' <')].chomp.strip # store just the author name
         elsif line.start_with? "@@"
@@ -50,45 +50,48 @@ module InteractiveChurn
           lines_added += lines_added_num
           lines_deleted += lines_deleted_num
 
-          #calculate lines to look at for the git blame    
+          #check if git blame needs to be calculated    
           if lines_deleted_num == 0
-            line_end = lines_deleted_start
+            # you have all the info you need, add it to the csv file
+            CSV.open("../churnlog.csv", "a+") do |row|
+              row << [revision, file, lines_added + lines_deleted, lines_added, lines_deleted, lines_deleted_self, \
+                      lines_deleted_other ,authors_affected.size,authors_affected.to_a ]
+            end
           else
+            # Run blame, once for this particular file, storing as we go
+            # * Leading up to the revision prior to that (hence the ^) 
+            # * -l for showing long revision names
+            # * -L variable,variable for getting blame only on the lines we care about
             line_end = lines_deleted_start + lines_deleted_num-1
-          end
-          
-          # Run blame, once for this particular file, storing as we go
-          # * Leading up to the revision prior to that (hence the ^) 
-          # * -l for showing long revision names 
-          blame = Hash.new
-          blame_text = `git blame -l -L #{lines_deleted_start},#{line_end} #{revision}^ -- #{file}`
-          blame_text.each_line do | blame_line | 
-            #blame_line = blame_line.force_encoding("iso-8859-1")
-            line_number=blame_line[/[\d]+\)/].to_i
-            blame[line_number] = blame_line
-          end
+            blame = Hash.new
+            blame_text = `git blame -l -L #{lines_deleted_start},#{line_end} #{revision}^ -- #{file}`
+            blame_text.each_line do | blame_line | 
+              line_number=blame_line[/[\d]+\)/].to_i
+              blame[line_number] = blame_line
+            end
 
-          # Look it up in our blame hash
-          if lines_deleted_num > 0 then
-            num = lines_deleted_start
-            begin	
-              #does the blame line have the author of this commit?
-              if blame[num].include?(author) 
-                lines_deleted_self+=1
-              else
-                lines_deleted_other+=1
-                author_affected = blame[num].split(/[(]+/)[1].split(/[\d]{4}/)[0].strip
-                  authors_affected << author_affected	
-              end	
-              num+=1
-            end until num > (lines_deleted_start + lines_deleted_num - 1)
-          end
+            # Look it up in our blame hash
+            if lines_deleted_num > 0 then
+              num = lines_deleted_start
+              begin	
+                #does the blame line have the author of this commit?
+                if blame[num].include?(author) 
+                  lines_deleted_self+=1
+                else
+                  lines_deleted_other+=1
+                  author_affected = blame[num].split(/[(]+/)[1].split(/[\d]{4}/)[0].strip
+                    authors_affected << author_affected	
+                end	
+                num+=1
+              end until num > (lines_deleted_start + lines_deleted_num - 1)
+            end
+            
+            CSV.open("../churnlog.csv", "a+") do |row|
+              row << [revision, file, lines_added + lines_deleted, lines_added, lines_deleted, lines_deleted_self, \
+                      lines_deleted_other ,authors_affected.size,authors_affected.to_a ]
+            end 
+          end 
         end 
-      }
-
-      CSV.open("../churnlog.csv", "a+") do |row|
-        row << [revision, file, lines_added + lines_deleted, lines_added, lines_deleted, lines_deleted_self, \
-                lines_deleted_other ,authors_affected.size,authors_affected.to_a ]
       end
     end
 
@@ -104,7 +107,6 @@ module InteractiveChurn
       #get list of revisions
       revisions_text = `git log -10 --pretty=format:"%H"`
       puts "Starting to iterate over revisions at " + `date`
-      
       #loop over every revision, get files, do get_churn on files for interactive churn data
       revisions_text.each_line do |rev|
         rev = rev.strip
@@ -123,6 +125,4 @@ module InteractiveChurn
     end
 
   end
-end 
-
-
+end
