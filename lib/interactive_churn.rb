@@ -50,11 +50,17 @@ module InteractiveChurn
           lines_added += lines_added_num
           lines_deleted += lines_deleted_num
 
+          #calculate lines to look at for the git blame    
+          if lines_deleted_num == 0
+            line_end = lines_deleted_start
+          else
+            line_end = lines_deleted_start + lines_deleted_num-1
+          end
+          
           # Run blame, once for this particular file, storing as we go
           # * Leading up to the revision prior to that (hence the ^) 
           # * -l for showing long revision names 
           blame = Hash.new
-          line_end = lines_deleted_start + lines_deleted_num
           blame_text = `git blame -l -L #{lines_deleted_start},#{line_end} #{revision}^ -- #{file}`
           blame_text.each_line do | blame_line | 
             blame_line = blame_line.force_encoding("iso-8859-1")
@@ -86,18 +92,21 @@ module InteractiveChurn
       end
     end
 
-    def get_data(file)
-      valid_extns = ['.h','.cc','.js','.cpp','.gyp','.py','.c','.make','.sh','.S''.scons','.sb','Makefile']
+    def get_data()
+      valid_extns = ['.rb','.h','.cc','.js','.cpp','.gyp','.py','.c','.make','.sh','.S''.scons','.sb','Makefile']
      
       # create csv file with headers
       CSV.open('../churnlog.csv','w+') do |headers|
       headers << ["commit","filepath","total_churn","lines_added", "lines_deleted","lines_deleted_self", \
                    "lines_deleted_other","num_devs_affected","devs_affected"]
       end
+     
+      #get list of revisions
+      revisions_text = `git log --pretty=format:"%H"`
+      puts "Starting to iterate over revisions at " + `date`
       
       #loop over every revision, get files, do get_churn on files for interactive churn data
-      text = File.open(file).read
-      text.each_line do |rev|
+      revisions_text.each_line do |rev|
         rev = rev.strip
         git_files = `git show --pretty="format:" --name-only #{rev}`
         git_files.each_line do |filename|
