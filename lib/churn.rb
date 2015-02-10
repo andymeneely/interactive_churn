@@ -20,8 +20,6 @@ class Churn
       insertions
     rescue Errno::ENOENT
       raise StandardError, "#{Churn::COMMAND_NAME}: #{Churn.root_directory}: No such file or directory"
-    rescue StandardError => e
-      raise e
     ensure
       Dir.chdir cwd
     end
