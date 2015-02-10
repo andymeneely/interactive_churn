@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = InteractiveChurn::VERSION
   spec.authors       = ["Andy Meneely"]
   spec.email         = ["andy.meneely@gmail.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
+  spec.summary       = %q{A suite of interactive code churn metrics}
+  spec.description   = %q{A collecting of command-line scripts for collecting interactive code churn metrics}
   spec.homepage      = ""
   spec.license       = "MIT"
 

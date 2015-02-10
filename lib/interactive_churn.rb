@@ -63,7 +63,7 @@ module InteractiveChurn
           blame = Hash.new
           blame_text = `git blame -l -L #{lines_deleted_start},#{line_end} #{revision}^ -- #{file}`
           blame_text.each_line do | blame_line | 
-            blame_line = blame_line.force_encoding("iso-8859-1")
+            #blame_line = blame_line.force_encoding("iso-8859-1")
             line_number=blame_line[/[\d]+\)/].to_i
             blame[line_number] = blame_line
           end
@@ -102,7 +102,7 @@ module InteractiveChurn
       end
      
       #get list of revisions
-      revisions_text = `git log --pretty=format:"%H"`
+      revisions_text = `git log -10 --pretty=format:"%H"`
       puts "Starting to iterate over revisions at " + `date`
       
       #loop over every revision, get files, do get_churn on files for interactive churn data
