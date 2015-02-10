@@ -25,7 +25,7 @@ module InteractiveChurn
       authors_affected = Set.new 
 
       #Use git log to show only that one file at the one revision, no diff context!
-      patch_text = `git log -p --unified=0 -1 #{revision} -- #{file}`
+      patch_text = `git log -p --ignore-all-space --unified=0 -1 #{revision} -- #{file}`
       patch_text.each_line { | line |
         if line.start_with? "Author: " 
           author = line[8..line.index(' <')].chomp.strip # store just the author name
