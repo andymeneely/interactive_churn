@@ -53,13 +53,18 @@ describe "Churn" do
         expect(Churn.compute).to eq(Churn.compute "HEAD")
       end
 
-      it "computes the amount of inserted lines on the current branch and default HEAD revision" do
+      it "computes the amount of inserted lines on the current branch for the entire history, all files, and default HEAD revision" do
         file_name = "a_file"
         system("cd #{@directory_name} && echo 'line1' > #{file_name} && git add #{file_name} && git commit -m 'initial commit'")
-
         expect(Churn.compute).to eq(1)
         system("cd #{@directory_name} && echo 'line1\nline2\nline3' > #{file_name} && git add #{file_name} && git commit -m 'initial commit'")
-        expect(Churn.compute).to eq(2)
+        expect(Churn.compute).to eq(3)
+
+        file_name = "another_file"
+        system("cd #{@directory_name} && echo 'line1' > #{file_name} && git add #{file_name} && git commit -m 'initial commit'")
+        expect(Churn.compute).to eq(4)
+        system("cd #{@directory_name} && echo 'line1\nline2' > #{file_name} && git add #{file_name} && git commit -m 'initial commit'")
+        expect(Churn.compute).to eq(5)
       end
     end
 
