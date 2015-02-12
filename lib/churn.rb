@@ -5,19 +5,23 @@ class Churn
     attr_accessor :root_directory
   end
 
-  def self.compute revision="HEAD"
+  def self.compute opt = {}
     cwd = Dir.getwd
+    set_default_parameters opt
     begin
       Dir.chdir root_directory
-      check_exceptions revision
-      output = %x[ git rev-list --no-merges #{revision} | while read rev; do git show -w -C --shortstat --format=format: $rev; done 2>&1 ].split(/\n/)
+      check_exceptions opt[:revision], opt[:file_name]
+      output = %x[ git rev-list --no-merges #{opt[:revision]} | while read rev; do git show -w -C --shortstat --format=format: $rev #{opt[:file_name]}; done 2>&1 ].split(/\n/)
       output = output.reject{|v| output.index(v).even? }.map{|e| e.split(/,/) }.flatten
       insertions = 0
+      deletions = 0
       output.each do |msg|
         matching = msg.match(/(\d*) insertion.*/)
         insertions += matching.nil? ? 0 : matching[1].to_i
+        matching = msg.match(/(\d*) deletion.*/)
+        deletions += matching.nil? ? 0 : matching[1].to_i
       end
-      insertions
+      {insertions: insertions, deletions: deletions}
     rescue Errno::ENOENT
       raise StandardError, "#{Churn::COMMAND_NAME}: #{Churn.root_directory}: No such file or directory"
     ensure
@@ -26,15 +30,23 @@ class Churn
   end
 
   private
-    def self.check_exceptions revision
+    def self.check_exceptions revision, file_name
       output = %x[ git rev-parse --is-inside-work-tree #{root_directory} 2>&1 ].tr("\n","")
       raise StandardError, "ichurn: #{root_directory}: " + output unless output =~ /^true/
 
       output = %x[ git log -p -1 2>&1 ].tr("\n","")
       raise StandardError, "ichurn: #{root_directory}: " + output unless output =~ /^commit/
 
+      output = %x[ git log -p -1 #{file_name} 2>&1 ].split(/\n/)[0]
+      raise StandardError, "ichurn: " + output unless output =~ /^commit/
+
       output = %x[ git log -p -1 #{revision} 2>&1 ].split(/\n/)[0]
       raise StandardError, "ichurn: " + output unless output =~ /^commit/
+    end
+
+    def self.set_default_parameters opt
+      opt[:revision] ||= 'HEAD'
+      opt[:file_name] ||= ''
     end
 
 end
