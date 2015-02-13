@@ -6,7 +6,10 @@ class Churn
   end
 
   def self.compute with_opt = {}
-    output = git_history_summary with_opt
+    count_lines_from git_history_summary with_opt
+  end
+
+  def self.count_lines_from output
     insertions = 0
     deletions = 0
     output.each do |msg|

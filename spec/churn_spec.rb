@@ -13,6 +13,10 @@ describe "Churn" do
     expect { Churn.compute }.to raise_error(StandardError, "#{COMMAND_NAME}: #{directory_name}: No such file or directory")
   end
 
+  it "count insertions and deletions" do
+    expect(Churn.count_lines_from [" 1 file changed", " 2 insertions(+)", " 1 deletion(-)", " 1 file changed", " 1 insertion(+)"]).to include(insertions: 3, deletions: 1)
+  end
+
   context "within an existing directory" do
     before(:each) do
       @directory_name = Dir.getwd + "/.." + "/churn_test_directory"
