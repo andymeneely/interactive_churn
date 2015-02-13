@@ -5,23 +5,27 @@ class Churn
     attr_accessor :root_directory
   end
 
-  def self.compute opt = {}
+  def self.compute with_opt = {}
+    output = git_history_summary with_opt
+    insertions = 0
+    deletions = 0
+    output.each do |msg|
+      matching = msg.match(/(\d*) insertion.*/)
+      insertions += matching.nil? ? 0 : matching[1].to_i
+      matching = msg.match(/(\d*) deletion.*/)
+      deletions += matching.nil? ? 0 : matching[1].to_i
+    end
+    {insertions: insertions, deletions: deletions}
+  end
+
+  def self.git_history_summary with_opt = {}
     cwd = Dir.getwd
-    set_default_parameters opt
+    set_default_parameters with_opt
     begin
       Dir.chdir root_directory
-      check_exceptions opt[:revision], opt[:file_name]
-      output = %x[ git rev-list --no-merges #{opt[:revision]} | while read rev; do git show -w -C --shortstat --format=format: $rev #{opt[:file_name]}; done 2>&1 ].split(/\n/)
-      output = output.reject{|v| output.index(v).even? }.map{|e| e.split(/,/) }.flatten
-      insertions = 0
-      deletions = 0
-      output.each do |msg|
-        matching = msg.match(/(\d*) insertion.*/)
-        insertions += matching.nil? ? 0 : matching[1].to_i
-        matching = msg.match(/(\d*) deletion.*/)
-        deletions += matching.nil? ? 0 : matching[1].to_i
-      end
-      {insertions: insertions, deletions: deletions}
+      check_exceptions with_opt[:revision], with_opt[:file_name]
+      output = %x[ git rev-list --no-merges #{with_opt[:revision]} | while read rev; do git show -w -C --shortstat --format=format: $rev #{with_opt[:file_name]} | grep file; done 2>&1 ].split(/\n/)
+      output.map{|e| e.split(/,/) }.flatten
     rescue Errno::ENOENT
       raise StandardError, "#{Churn::COMMAND_NAME}: #{Churn.root_directory}: No such file or directory"
     ensure

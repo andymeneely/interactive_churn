@@ -99,6 +99,13 @@ describe "Churn" do
         expect(Churn.compute(file_name: file_a)[:insertions]).to eq(3)
         expect(Churn.compute(file_name: file_b)[:insertions] ).to eq(2)
       end
+
+      it "returns a summary of the history" do
+        file_a = "a_file"
+        system("cd #{@directory_name} && echo 'line1' > #{file_a} && git add #{file_a} && git commit -m 'initial commit'")
+        system("cd #{@directory_name} && echo 'line2\nline3' > #{file_a} && git add #{file_a} && git commit -m 'initial commit'")
+        expect(Churn.git_history_summary).to eq([" 1 file changed", " 2 insertions(+)", " 1 deletion(-)", " 1 file changed", " 1 insertion(+)"])
+      end
     end
 
     after(:each) do
