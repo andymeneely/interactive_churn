@@ -27,8 +27,7 @@ class Churn
     begin
       Dir.chdir root_directory
       check_exceptions with_opt[:revision], with_opt[:file_name]
-      output = %x[ git rev-list --no-merges #{with_opt[:revision]} | while read rev; do git show -w -C --shortstat --format=format: $rev #{with_opt[:file_name]} | grep file; done 2>&1 ].split(/\n/)
-      output.map{|e| e.split(/,/) }.flatten
+      %x[ git log --no-merges --stat #{with_opt[:revision]} #{with_opt[:file_name]} | grep "^ [0-9]* file" ].split(/,|\n/)
     rescue Errno::ENOENT
       raise StandardError, "#{Churn::COMMAND_NAME}: #{Churn.root_directory}: No such file or directory"
     ensure
