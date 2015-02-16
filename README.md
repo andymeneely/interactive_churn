@@ -1,4 +1,4 @@
-# InteractiveChurn
+# InteractiveChurn [![Build Status](https://secure.travis-ci.org/andymeneely/interactive_churn.svg?branch=master)](https://travis-ci.org/andymeneely/interactive_churn)
 
 TODO: Write a gem description
 
