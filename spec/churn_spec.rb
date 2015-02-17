@@ -37,6 +37,7 @@ describe "Churn" do
     context "within a git repository" do
       before(:each) do
         system("git init #{@directory_name}")
+        system("cd #{@directory_name} && git config user.email 'atester@ichurn.org' && git config user.name 'auto tester'")
       end
 
       it "raises an exception if the root_directory is a git repository with no commits" do
