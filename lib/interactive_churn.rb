@@ -55,7 +55,7 @@ module InteractiveChurn
             # you have all the info you need, add it to the csv file
             CSV.open("../churnlog.csv", "a+") do |row|
               row << [revision, file, lines_added + lines_deleted, lines_added, lines_deleted, lines_deleted_self, \
-                      lines_deleted_other ,authors_affected.size,authors_affected.to_a ]
+                      lines_deleted_other ,authors_affected.size]
             end
           else
             # Run blame, once for this particular file, storing as we go
@@ -88,7 +88,7 @@ module InteractiveChurn
             
             CSV.open("../churnlog.csv", "a+") do |row|
               row << [revision, file, lines_added + lines_deleted, lines_added, lines_deleted, lines_deleted_self, \
-                      lines_deleted_other ,authors_affected.size,authors_affected.to_a ]
+                      lines_deleted_other ,authors_affected.size]
             end 
           end 
         end 
@@ -97,15 +97,16 @@ module InteractiveChurn
 
     def get_data()
       valid_extns = ['.rb','.h','.cc','.js','.cpp','.gyp','.py','.c','.make','.sh','.S''.scons','.sb','Makefile']
-     
+      
+      
       # create csv file with headers
       CSV.open('../churnlog.csv','w+') do |headers|
       headers << ["commit","filepath","total_churn","lines_added", "lines_deleted","lines_deleted_self", \
-                   "lines_deleted_other","num_devs_affected","devs_affected"]
+                   "lines_deleted_other","num_devs_affected"]
       end
      
       #get list of revisions
-      revisions_text = `git log -10 --pretty=format:"%H"`
+      revisions_text = `git log -100 --pretty=format:"%H"`
       puts "Starting to iterate over revisions at " + `date`
       #loop over every revision, get files, do get_churn on files for interactive churn data
       revisions_text.each_line do |rev|
