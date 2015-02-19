@@ -51,13 +51,7 @@ module InteractiveChurn
           lines_deleted += lines_deleted_num
 
           #check if git blame needs to be calculated    
-          if lines_deleted_num == 0
-            # you have all the info you need, add it to the csv file
-            CSV.open("../churnlog.csv", "a+") do |row|
-              row << [revision, file, lines_added + lines_deleted, lines_added, lines_deleted, lines_deleted_self, \
-                      lines_deleted_other ,authors_affected.size]
-            end
-          else
+          unless lines_deleted_num == 0
             # Run blame, once for this particular file, storing as we go
             # * Leading up to the revision prior to that (hence the ^) 
             # * -l for showing long revision names
@@ -80,40 +74,40 @@ module InteractiveChurn
                 else
                   lines_deleted_other+=1
                   author_affected = blame[num].split(/[(]+/)[1].split(/[\d]{4}/)[0].strip
-                    authors_affected << author_affected	
+                  authors_affected << author_affected	
                 end	
                 num+=1
               end until num > (lines_deleted_start + lines_deleted_num - 1)
             end
-            
-            CSV.open("../churnlog.csv", "a+") do |row|
-              row << [revision, file, lines_added + lines_deleted, lines_added, lines_deleted, lines_deleted_self, \
-                      lines_deleted_other ,authors_affected.size]
-            end 
           end 
         end 
       end
-    end
+      # And dump our results to a file
+      CSV.open("../churnlog.csv", "a+") do |row|
+        row << [revision, file, lines_added + lines_deleted, lines_added, lines_deleted, lines_deleted_self, \
+                lines_deleted_other ,authors_affected.size]
+      end
+    end #method
 
-    def get_data()
+    def get_data(gitopts)
       valid_extns = ['.rb','.h','.cc','.js','.cpp','.gyp','.py','.c','.make','.sh','.S''.scons','.sb','Makefile']
-      
-      
+
       # create csv file with headers
       CSV.open('../churnlog.csv','w+') do |headers|
-      headers << ["commit","filepath","total_churn","lines_added", "lines_deleted","lines_deleted_self", \
-                   "lines_deleted_other","num_devs_affected"]
+        headers << ["commit","filepath","total_churn","lines_added", "lines_deleted","lines_deleted_self", \
+                    "lines_deleted_other","num_devs_affected"]
       end
-     
+
       #get list of revisions
-      revisions_text = `git log -100 --pretty=format:"%H"`
+      revisions_text = `git log --pretty=format:"%H" #{gitopts}`
       puts "Starting to iterate over revisions at " + `date`
       #loop over every revision, get files, do get_churn on files for interactive churn data
+      puts revisions_text
       revisions_text.each_line do |rev|
-        rev = rev.strip
+        rev.strip!
         git_files = `git show --pretty="format:" --name-only #{rev}`
         git_files.each_line do |filename|
-          filename = filename.strip
+          filename.strip!
           unless filename.empty?
             valid_extns.each do |extn|
               if filename.end_with?(extn)
