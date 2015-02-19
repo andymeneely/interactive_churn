@@ -102,7 +102,6 @@ module InteractiveChurn
       revisions_text = `git log --pretty=format:"%H" #{gitopts}`
       puts "Starting to iterate over revisions at " + `date`
       #loop over every revision, get files, do get_churn on files for interactive churn data
-      puts revisions_text
       revisions_text.each_line do |rev|
         rev.strip!
         git_files = `git show --pretty="format:" --name-only #{rev}`
