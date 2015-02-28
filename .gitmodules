@@ -1,0 +1,3 @@
+[submodule "spec/samplerepo"]
+	path = spec/samplerepo
+	url = https://github.com/hvaldecantos/samplerepo.git
