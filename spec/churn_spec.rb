@@ -13,7 +13,7 @@ describe "Churn class" do
     expect { Churn.compute }.to raise_error(StandardError, "#{COMMAND_NAME}: #{directory_name}: No such file or directory")
   end
 
-  it "count insertions and deletions" do
+  it "count insertions and deletions from the last line of git log --stat output" do
     expect(Churn.count_lines_from [" 1 file changed", " 2 insertions(+)", " 1 deletion(-)", " 1 file changed", " 1 insertion(+)"]).to include(insertions: 3, deletions: 1)
   end
 
@@ -46,7 +46,7 @@ describe "Churn class" do
       Churn.root_directory = @directory_name
     end
 
-    it "raises an exception if the root_directory is a git repository with no commits" do
+    it "raises an exception when invoking compute method" do
       expect { Churn.compute }.to raise_error(StandardError, "#{COMMAND_NAME}: #{@directory_name}: fatal: bad default revision 'HEAD'")
     end
 
@@ -66,29 +66,29 @@ describe "Churn class" do
       expect { Churn.compute revision: revision }.to raise_error(StandardError, "#{COMMAND_NAME}: fatal: ambiguous argument '#{revision}': unknown revision or path not in the working tree.")
     end
 
-    it "has HEAD as default revision" do
+    it "computes churn with HEAD as default revision" do
       expect(Churn.compute).to eq(Churn.compute revision: "HEAD")
     end
 
-    it "computes the amount of inserted lines on the current branch for the entire history, all files, and default HEAD revision" do
+    it "computes the number of inserted lines for the entire history and all files" do
       expect(Churn.compute[:insertions]).to eq(48)
     end
 
-    it "computes the amount of deleted lines on the current branch for the entire history, all files, and default HEAD revision" do
+    it "computes the number of deleted lines for the entire history and all files" do
         expect(Churn.compute[:deletions]).to eq(20)
     end
 
-    it "raises an exception if the file does not exist" do
+    it "raises an exception when invoking compute method with a file that does not exist" do
       file_name = "non-existent-file"
       expect { Churn.compute file_name: file_name}.to raise_error(StandardError, "#{COMMAND_NAME}: fatal: ambiguous argument '#{file_name}': unknown revision or path not in the working tree.")
     end
 
-    it "computes the amount of inserted lines on a specific file on the current branch for the entire" do
+    it "computes the amount of inserted lines on a specific file for the entire history" do
       expect(Churn.compute(file_name: "factorial.rb")[:insertions]).to eq(35)
       expect(Churn.compute(file_name: "test.rb")[:insertions] ).to eq(12)
     end
 
-    it "returns a summary of the history" do
+    it "returns an array with the history composed with the last lines of the output of `git log --stat` command" do
       file_a = "test.rb"
       expect(Churn.git_history_summary).to eq([" 2 files changed", " 8 insertions(+)", " 2 deletions(-)", " 2 files changed", " 6 insertions(+)", " 1 deletion(-)", " 2 files changed", " 7 insertions(+)", " 2 files changed", " 5 insertions(+)", " 3 deletions(-)", " 2 files changed", " 4 insertions(+)", " 3 deletions(-)", " 1 file changed", " 1 insertion(+)", " 1 file changed", " 2 insertions(+)", " 8 deletions(-)", " 1 file changed", " 7 insertions(+)", " 3 deletions(-)", " 1 file changed", " 7 insertions(+)", " 1 file changed", " 1 insertion(+)"])
     end
