@@ -42,7 +42,7 @@ describe "Churn class" do
   context "within a git repo with no commits" do
     before(:each) do
       @directory_name = Dir.getwd + "/.." + "/churn_test_directory"
-      system("git init #{@directory_name}")
+      system("git init #{@directory_name} > /dev/null")
       Churn.root_directory = @directory_name
     end
 
