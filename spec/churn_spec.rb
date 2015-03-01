@@ -103,6 +103,10 @@ describe "Churn class" do
       expect(Churn.git_history_summary).to eq([" 2 files changed", " 8 insertions(+)", " 2 deletions(-)", " 2 files changed", " 6 insertions(+)", " 1 deletion(-)", " 2 files changed", " 7 insertions(+)", " 2 files changed", " 5 insertions(+)", " 3 deletions(-)", " 2 files changed", " 4 insertions(+)", " 3 deletions(-)", " 1 file changed", " 1 insertion(+)", " 1 file changed", " 2 insertions(+)", " 8 deletions(-)", " 1 file changed", " 7 insertions(+)", " 3 deletions(-)", " 1 file changed", " 7 insertions(+)", " 1 file changed", " 1 insertion(+)"])
     end
 
+    it "returns a string with number of commits envolved, number of lines inserted and deleted, and the total churn" do
+      expect(Churn.get_output).to eq("Commits:       26\nTotal Churn:   68\nLines added:   48\nLines deleted: 20\n")
+    end
+
   end
 
 end

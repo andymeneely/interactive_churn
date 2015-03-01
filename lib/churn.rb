@@ -9,6 +9,14 @@ class Churn
     count_lines_from git_history_summary with_opt
   end
 
+  def self.get_output with_opt = {}
+    result = Churn::compute with_opt
+    "%-14s %d\n" % ["Commits:", result[:commits]] +
+    "%-14s %d\n" % ["Total Churn:", result[:insertions] + result[:deletions]] +
+    "%-14s %d\n" % ["Lines added:", result[:insertions]] +
+    "%-14s %d\n" % ["Lines deleted:", result[:deletions]]
+  end
+
   def self.count_lines_from output
     insertions = 0
     deletions = 0
