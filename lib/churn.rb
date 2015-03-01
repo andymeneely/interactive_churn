@@ -47,17 +47,9 @@ class Churn
 
   private
     def self.check_exceptions revision, file_name
-      output = %x[ git rev-parse --is-inside-work-tree #{root_directory} 2>&1 ].tr("\n","")
-      raise StandardError, "ichurn: #{root_directory}: " + output unless output =~ /^true/
-
-      output = %x[ git log -p -1 2>&1 ].tr("\n","")
-      raise StandardError, "ichurn: #{root_directory}: " + output unless output =~ /^commit/
-
-      output = %x[ git log -p -1 #{file_name} 2>&1 ].split(/\n/)[0]
-      raise StandardError, "ichurn: " + output unless output =~ /^commit/
-
-      output = %x[ git log -p -1 #{revision} 2>&1 ].split(/\n/)[0]
-      raise StandardError, "ichurn: " + output unless output =~ /^commit/
+      output = %x[ git log -p -1 #{revision} #{file_name} 2>&1 ]
+      output = output.gsub(/git <command>/, COMMAND_NAME)
+      raise StandardError, output unless output !~ /^fatal:/
     end
 
     def self.set_default_parameters opt

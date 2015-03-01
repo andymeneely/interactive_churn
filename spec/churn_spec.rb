@@ -31,7 +31,7 @@ describe "Churn class" do
     end
 
     it "raises an exception if the root_directory is not a git repository" do
-      expect { Churn.compute }.to raise_error(StandardError, "#{COMMAND_NAME}: #{@directory_name}: fatal: Not a git repository (or any of the parent directories): .git")
+      expect { Churn.compute }.to raise_error(StandardError, "fatal: Not a git repository (or any of the parent directories): .git\n")
     end
 
     after(:each) do
@@ -47,7 +47,10 @@ describe "Churn class" do
     end
 
     it "raises an exception when invoking compute method" do
-      expect { Churn.compute }.to raise_error(StandardError, "#{COMMAND_NAME}: #{@directory_name}: fatal: bad default revision 'HEAD'")
+      msg = "fatal: ambiguous argument 'HEAD': unknown revision or path not in the working tree.\n" +
+            "Use '--' to separate paths from revisions, like this:\n" +
+            "'#{COMMAND_NAME} [<revision>...] -- [<file>...]'\n"
+      expect { Churn.compute }.to raise_error(StandardError, msg)
     end
 
     after(:each) do
@@ -63,7 +66,10 @@ describe "Churn class" do
 
     it "raises an exception if try to compute churn for an unknown revision" do
       revision = "UNKNOWN_REVISION"
-      expect { Churn.compute revision: revision }.to raise_error(StandardError, "#{COMMAND_NAME}: fatal: ambiguous argument '#{revision}': unknown revision or path not in the working tree.")
+      msg = "fatal: ambiguous argument '#{revision}': unknown revision or path not in the working tree.\n" +
+            "Use '--' to separate paths from revisions, like this:\n" +
+            "'#{COMMAND_NAME} [<revision>...] -- [<file>...]'\n"
+      expect { Churn.compute revision: revision }.to raise_error(StandardError, msg)
     end
 
     it "computes churn with HEAD as default revision" do
@@ -80,7 +86,10 @@ describe "Churn class" do
 
     it "raises an exception when invoking compute method with a file that does not exist" do
       file_name = "non-existent-file"
-      expect { Churn.compute file_name: file_name}.to raise_error(StandardError, "#{COMMAND_NAME}: fatal: ambiguous argument '#{file_name}': unknown revision or path not in the working tree.")
+      msg = "fatal: ambiguous argument '#{file_name}': unknown revision or path not in the working tree.\n" +
+            "Use '--' to separate paths from revisions, like this:\n" +
+            "'#{COMMAND_NAME} [<revision>...] -- [<file>...]'\n"
+      expect { Churn.compute file_name: file_name}.to raise_error(StandardError, msg)
     end
 
     it "computes the amount of inserted lines on a specific file for the entire history" do
