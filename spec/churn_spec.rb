@@ -88,6 +88,12 @@ describe "Churn class" do
       expect(Churn.compute(file_name: "test.rb")[:insertions] ).to eq(12)
     end
 
+    it "computes the amount of deleted lines on a specific file for the entire history" do
+      expect(Churn.compute(file_name: "factorial.rb")[:deletions]).to eq(17)
+      expect(Churn.compute(file_name: "test.rb")[:deletions]).to eq(3)
+    end
+
+
     it "computes the number of commits involved when calculating the churn" do
       expect(Churn.compute[:commits]).to eq(26)
     end
