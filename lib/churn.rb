@@ -20,8 +20,9 @@ class Churn
   def self.count_lines_from output
     insertions = 0
     deletions = 0
-    commits = output.size
+    commits = 0
     output.each do |msg|
+      commits += 1 if(msg =~ /file/)
       matching = msg.match(/(\d*) insertion.*/)
       insertions += matching.nil? ? 0 : matching[1].to_i
       matching = msg.match(/(\d*) deletion.*/)

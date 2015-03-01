@@ -93,9 +93,8 @@ describe "Churn class" do
       expect(Churn.compute(file_name: "test.rb")[:deletions]).to eq(3)
     end
 
-
     it "computes the number of commits involved when calculating the churn" do
-      expect(Churn.compute[:commits]).to eq(26)
+      expect(Churn.compute[:commits]).to eq(10)
     end
 
     it "returns an array with the history composed with the last lines of the output of `git log --stat` command" do
@@ -104,7 +103,7 @@ describe "Churn class" do
     end
 
     it "returns a string with number of commits envolved, number of lines inserted and deleted, and the total churn" do
-      expect(Churn.get_output).to eq("Commits:       26\nTotal Churn:   68\nLines added:   48\nLines deleted: 20\n")
+      expect(Churn.get_output).to eq("Commits:       10\nTotal Churn:   68\nLines added:   48\nLines deleted: 20\n")
     end
 
     it "computes churn between two revisions" do
