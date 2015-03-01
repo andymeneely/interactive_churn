@@ -5,12 +5,12 @@ class Churn
     attr_accessor :root_directory
   end
 
-  def self.compute with_opt = {}
-    count_lines_from git_history_summary with_opt
+  def self.compute with_command_line_params = ""
+    count_lines_from git_history_summary with_command_line_params
   end
 
-  def self.get_output with_opt = {}
-    result = Churn::compute with_opt
+  def self.get_output cmd_line_params = ""
+    result = Churn::compute cmd_line_params
     "%-14s %d\n" % ["Commits:", result[:commits]] +
     "%-14s %d\n" % ["Total Churn:", result[:insertions] + result[:deletions]] +
     "%-14s %d\n" % ["Lines added:", result[:insertions]] +
@@ -31,13 +31,12 @@ class Churn
     {commits: commits, insertions: insertions, deletions: deletions}
   end
 
-  def self.git_history_summary with_opt = {}
+  def self.git_history_summary cmd_line_params = ""
     cwd = Dir.getwd
-    set_default_parameters with_opt
     begin
       Dir.chdir root_directory
-      check_exceptions with_opt[:revision], with_opt[:file_name]
-      %x[ git log --no-merges --stat #{with_opt[:revision]} #{with_opt[:file_name]} | grep "^ [0-9]* file" ].split(/,|\n/)
+      check_exceptions cmd_line_params
+      %x[ git log --no-merges --stat #{cmd_line_params} | grep "^ [0-9]* file" ].split(/,|\n/)
     rescue Errno::ENOENT
       raise StandardError, "#{Churn::COMMAND_NAME}: #{Churn.root_directory}: No such file or directory"
     ensure
@@ -46,8 +45,8 @@ class Churn
   end
 
   private
-    def self.check_exceptions revision, file_name
-      output = %x[ git log -p -1 #{revision} #{file_name} 2>&1 ]
+    def self.check_exceptions cmd_line_params
+      output = %x[ git log -p -1 #{cmd_line_params} 2>&1 ]
       output = output.gsub(/git <command>/, COMMAND_NAME)
       raise StandardError, output unless output !~ /^fatal:/
     end
