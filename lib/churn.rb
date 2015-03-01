@@ -51,9 +51,4 @@ class Churn
       raise StandardError, output unless output !~ /^fatal:/
     end
 
-    def self.set_default_parameters opt
-      opt[:revision] ||= 'HEAD'
-      opt[:file_name] ||= ''
-    end
-
 end
