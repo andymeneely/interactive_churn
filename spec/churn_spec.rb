@@ -105,7 +105,6 @@ describe "Churn class" do
     end
 
     it "returns an array with the history composed with the last lines of the output of `git log --stat` command" do
-      file_a = "test.rb"
       expect(Churn.git_history_summary).to eq([" 2 files changed", " 8 insertions(+)", " 2 deletions(-)", " 2 files changed", " 6 insertions(+)", " 1 deletion(-)", " 2 files changed", " 7 insertions(+)", " 2 files changed", " 5 insertions(+)", " 3 deletions(-)", " 2 files changed", " 4 insertions(+)", " 3 deletions(-)", " 1 file changed", " 1 insertion(+)", " 1 file changed", " 2 insertions(+)", " 8 deletions(-)", " 1 file changed", " 7 insertions(+)", " 3 deletions(-)", " 1 file changed", " 7 insertions(+)", " 1 file changed", " 1 insertion(+)"])
     end
 
