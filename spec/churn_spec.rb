@@ -107,11 +107,16 @@ describe "Churn class" do
       expect(Churn.get_output).to eq("Commits:       26\nTotal Churn:   68\nLines added:   48\nLines deleted: 20\n")
     end
 
-    it "computes churn for a specific revision" do
+    it "computes churn between two revisions" do
       expect(Churn.compute(:revision => "HEAD^^..HEAD^")[:insertions]).to eq(6)
       expect(Churn.compute(:revision => "HEAD^..HEAD")[:insertions]).to eq(8)
       expect(Churn.compute(:revision => "HEAD^^..HEAD")[:insertions]).to eq(14)
     end
+
+    it "computes churn between two revisions for a specific file" do
+      expect(Churn.compute(revision: "HEAD^^..HEAD^", file_name: "factorial.rb")[:insertions]).to eq(5)
+    end
+
   end
 
 end
