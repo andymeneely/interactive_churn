@@ -12,13 +12,14 @@ class Churn
   def self.count_lines_from output
     insertions = 0
     deletions = 0
+    commits = output.size
     output.each do |msg|
       matching = msg.match(/(\d*) insertion.*/)
       insertions += matching.nil? ? 0 : matching[1].to_i
       matching = msg.match(/(\d*) deletion.*/)
       deletions += matching.nil? ? 0 : matching[1].to_i
     end
-    {insertions: insertions, deletions: deletions}
+    {commits: commits, insertions: insertions, deletions: deletions}
   end
 
   def self.git_history_summary with_opt = {}
