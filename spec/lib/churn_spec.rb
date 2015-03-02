@@ -128,8 +128,8 @@ describe "Churn class" do
 
     it "computes churn for a specific branch" do
       system("cd spec/samplerepo && " +
-             "git checkout dev > /dev/null && "+
-             "git checkout master > /dev/null")
+             "git checkout dev && "+
+             "git checkout master", :out => "")
       expect(Churn.compute[:insertions]).to eq(48)
       expect(Churn.compute("dev")[:insertions]).to eq(57)
     end
