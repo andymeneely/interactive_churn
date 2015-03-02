@@ -1,0 +1,11 @@
+#!/usr/bin/ruby
+
+require_relative "../lib/churn.rb"
+
+begin
+  params = ARGV.reduce{|a,b| a + " " + b}
+  Churn::root_directory = Dir.getwd
+  puts Churn::get_output params
+rescue Exception => e
+  puts e.message
+end
