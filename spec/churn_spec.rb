@@ -112,6 +112,10 @@ describe "Churn class" do
       expect(Churn.get_output).to eq("Commits:       10\nTotal Churn:   68\nLines added:   48\nLines deleted: 20\n")
     end
 
+    it "returns churns metrics in json format" do
+      expect(Churn.get_output_json).to eq( "{\"Commits\":10,\"Total Churn\":68,\"Lines added\":48,\"Lines deleted\":20}")
+    end
+
     it "computes churn between two revisions" do
       expect(Churn.compute("HEAD^^..HEAD^")[:insertions]).to eq(6)
       expect(Churn.compute("HEAD^..HEAD")[:insertions]).to eq(8)
