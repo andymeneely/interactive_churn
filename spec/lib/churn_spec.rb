@@ -126,6 +126,14 @@ describe "Churn class" do
       expect(Churn.compute("HEAD^^..HEAD^ -- factorial.rb")[:insertions]).to eq(5)
     end
 
+    it "computes churn for a specific branch" do
+      system("cd spec/samplerepo && " +
+             "git checkout dev > /dev/null && "+
+             "git checkout master > /dev/null")
+      expect(Churn.compute[:insertions]).to eq(48)
+      expect(Churn.compute("dev")[:insertions]).to eq(57)
+    end
+
   end
 
 end
