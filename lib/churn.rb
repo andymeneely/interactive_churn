@@ -21,11 +21,12 @@ class Churn
     deletions = 0
     commits = 0
     output.each do |msg|
-      commits += 1 if(msg =~ /file/)
-      matching = msg.match(/(\d*) insertion.*/)
-      insertions += matching.nil? ? 0 : matching[1].to_i
-      matching = msg.match(/(\d*) deletion.*/)
-      deletions += matching.nil? ? 0 : matching[1].to_i
+      i1, d1, i2, d2 = msg.match(/(\d*)? insertion.*?(\d*) deletion.*|(\d*)? insertion|(\d*) deletion/).captures
+      insertions += i1.to_i unless i1.nil?
+      insertions += i2.to_i unless i2.nil?
+      deletions += d1.to_i unless d1.nil?
+      deletions += d2.to_i unless d2.nil?
+      commits += 1
     end
     {commits: commits, insertions: insertions, deletions: deletions}
   end
@@ -35,7 +36,7 @@ class Churn
     begin
       Dir.chdir root_directory
       check_exceptions cmd_line_params
-      %x[ git log --no-merges --stat #{cmd_line_params} | grep "^ [0-9]* file" ].split(/,|\n/)
+      %x[ git log --no-merges --stat #{cmd_line_params} | grep "^ [0-9]* file" ].split(/\n/)
     rescue Errno::ENOENT
       raise StandardError, "#{Churn::COMMAND_NAME}: #{Churn.root_directory}: No such file or directory"
     ensure

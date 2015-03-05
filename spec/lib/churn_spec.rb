@@ -14,7 +14,8 @@ describe "Churn class" do
   end
 
   it "count insertions and deletions from the last line of git log --stat output" do
-    expect(Churn.count_lines_from [" 1 file changed", " 2 insertions(+)", " 1 deletion(-)", " 1 file changed", " 1 insertion(+)"]).to include(insertions: 3, deletions: 1)
+    # expect(Churn.count_lines_from [" 1 file changed", " 2 insertions(+)", " 1 deletion(-)", " 1 file changed", " 1 insertion(+)"]).to include(insertions: 3, deletions: 1)
+    expect(Churn.count_lines_from [" 1 file changed 2 insertions(+) 1 deletion(-)", " 1 file changed 1 insertion(+)"]).to include(insertions: 3, deletions: 1)
   end
 
   context "within a plain directory (non-git repo)" do
@@ -105,7 +106,7 @@ describe "Churn class" do
     end
 
     it "returns an array with the history composed with the last lines of the output of `git log --stat` command" do
-      expect(Churn.git_history_summary).to eq([" 2 files changed", " 8 insertions(+)", " 2 deletions(-)", " 2 files changed", " 6 insertions(+)", " 1 deletion(-)", " 2 files changed", " 7 insertions(+)", " 2 files changed", " 5 insertions(+)", " 3 deletions(-)", " 2 files changed", " 4 insertions(+)", " 3 deletions(-)", " 1 file changed", " 1 insertion(+)", " 1 file changed", " 2 insertions(+)", " 8 deletions(-)", " 1 file changed", " 7 insertions(+)", " 3 deletions(-)", " 1 file changed", " 7 insertions(+)", " 1 file changed", " 1 insertion(+)"])
+      expect(Churn.git_history_summary).to eq([" 2 files changed, 8 insertions(+), 2 deletions(-)", " 2 files changed, 6 insertions(+), 1 deletion(-)", " 2 files changed, 7 insertions(+)", " 2 files changed, 5 insertions(+), 3 deletions(-)", " 2 files changed, 4 insertions(+), 3 deletions(-)", " 1 file changed, 1 insertion(+)", " 1 file changed, 2 insertions(+), 8 deletions(-)", " 1 file changed, 7 insertions(+), 3 deletions(-)", " 1 file changed, 7 insertions(+)", " 1 file changed, 1 insertion(+)"])
     end
 
     it "returns a string with number of commits envolved, number of lines inserted and deleted, and the total churn" do
