@@ -2,21 +2,14 @@
 
 require_relative "../lib/churn.rb"
 
+CHURN_OPTS = {format: '--json'}
+argv = ARGV - CHURN_OPTS.values
+params = argv.reduce{ |a, b| a + " " + b} || ""
+opt = CHURN_OPTS.delete_if{ |k, v| not ARGV.include? v}
+
 begin
-  json = false
-
-  if ARGV.include? "--json"
-    ARGV.delete '--json'
-    json = true
-  end
-  params = ARGV.reduce{|a,b| a + " " + b}
   Churn::root_directory = Dir.getwd
-  if json
-    puts Churn::get_output_json params
-  else
-    puts Churn::get_output params
-  end
-
+  puts Churn::get_output params, opt
 rescue Exception => e
   puts e.message
 end

@@ -113,7 +113,7 @@ describe "Churn class" do
     end
 
     it "returns churns metrics in json format" do
-      expect(Churn.get_output_json).to eq( "{\"Commits\":10,\"Total Churn\":68,\"Lines added\":48,\"Lines deleted\":20}")
+      expect(Churn.get_output "", {format: "--json"}).to eq( "{\"Commits\":10,\"Total Churn\":68,\"Lines added\":48,\"Lines deleted\":20}")
     end
 
     it "computes churn between two revisions" do

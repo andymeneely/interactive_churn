@@ -1,4 +1,5 @@
 require 'oj'
+require_relative './output'
 
 class Churn
   COMMAND_NAME = "ichurn"
@@ -11,21 +12,8 @@ class Churn
     count_lines_from git_history_summary with_command_line_params
   end
 
-  def self.get_output cmd_line_params = ""
-    result = Churn::compute cmd_line_params
-    "%-14s %d\n" % ["Commits:", result[:commits]] +
-    "%-14s %d\n" % ["Total Churn:", result[:insertions] + result[:deletions]] +
-    "%-14s %d\n" % ["Lines added:", result[:insertions]] +
-    "%-14s %d\n" % ["Lines deleted:", result[:deletions]]
-  end
-
-  def self.get_output_json cmd_line_params = ""
-    result = Churn::compute cmd_line_params
-
-    Oj.dump({'Commits' => result[:commits],
-             'Total Churn' => result[:insertions] + result[:deletions],
-             'Lines added' => result[:insertions],
-             'Lines deleted' => result[:deletions]})
+  def self.get_output cmd_line_params = "", opt = {}
+    Output.as (Churn::compute cmd_line_params), opt
   end
 
   def self.count_lines_from output
