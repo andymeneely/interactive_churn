@@ -67,11 +67,11 @@ describe "Churn class" do
       msg = "fatal: ambiguous argument '#{revision}': unknown revision or path not in the working tree.\n" +
             "Use '--' to separate paths from revisions, like this:\n" +
             "'#{COMMAND_NAME} [<revision>...] -- [<file>...]'\n"
-      expect { Churn.compute revision }.to raise_error(StandardError, msg)
+      expect { Churn.compute({git_params: revision})}.to raise_error(StandardError, msg)
     end
 
     it "computes churn with HEAD as default revision" do
-      expect(Churn.compute).to eq(Churn.compute "HEAD")
+      expect(Churn.compute).to eq(Churn.compute({git_params: "HEAD"}))
     end
 
     it "computes the number of inserted lines for the entire history and all files" do
@@ -87,17 +87,17 @@ describe "Churn class" do
       msg = "fatal: ambiguous argument '#{file_name}': unknown revision or path not in the working tree.\n" +
             "Use '--' to separate paths from revisions, like this:\n" +
             "'#{COMMAND_NAME} [<revision>...] -- [<file>...]'\n"
-      expect { Churn.compute file_name}.to raise_error(StandardError, msg)
+      expect { Churn.compute({git_params: file_name})}.to raise_error(StandardError, msg)
     end
 
     it "computes the amount of inserted lines on a specific file for the entire history" do
-      expect(Churn.compute("factorial.rb")[:insertions]).to eq(35)
-      expect(Churn.compute("test.rb")[:insertions] ).to eq(12)
+      expect(Churn.compute({git_params: "factorial.rb"})[:insertions]).to eq(35)
+      expect(Churn.compute({git_params: "test.rb"})[:insertions] ).to eq(12)
     end
 
     it "computes the amount of deleted lines on a specific file for the entire history" do
-      expect(Churn.compute("factorial.rb")[:deletions]).to eq(17)
-      expect(Churn.compute("test.rb")[:deletions]).to eq(3)
+      expect(Churn.compute({git_params: "factorial.rb"})[:deletions]).to eq(17)
+      expect(Churn.compute({git_params: "test.rb"})[:deletions]).to eq(3)
     end
 
     it "computes the number of commits involved when calculating the churn" do
@@ -113,17 +113,17 @@ describe "Churn class" do
     end
 
     it "returns churns metrics in json format" do
-      expect(Churn.get_output "", {format: "--json"}).to eq( "{\"Commits\":10,\"Total Churn\":68,\"Lines added\":48,\"Lines deleted\":20}")
+      expect(Churn.get_output({format: "--json"})).to eq( "{\"Commits\":10,\"Total Churn\":68,\"Lines added\":48,\"Lines deleted\":20}")
     end
 
     it "computes churn between two revisions" do
-      expect(Churn.compute("HEAD^^..HEAD^")[:insertions]).to eq(6)
-      expect(Churn.compute("HEAD^..HEAD")[:insertions]).to eq(8)
-      expect(Churn.compute("HEAD^^..HEAD")[:insertions]).to eq(14)
+      expect(Churn.compute({git_params: "HEAD^^..HEAD^"})[:insertions]).to eq(6)
+      expect(Churn.compute({git_params: "HEAD^..HEAD"})[:insertions]).to eq(8)
+      expect(Churn.compute({git_params: "HEAD^^..HEAD"})[:insertions]).to eq(14)
     end
 
     it "computes churn between two revisions for a specific file" do
-      expect(Churn.compute("HEAD^^..HEAD^ -- factorial.rb")[:insertions]).to eq(5)
+      expect(Churn.compute({git_params: "HEAD^^..HEAD^ -- factorial.rb"})[:insertions]).to eq(5)
     end
 
     it "computes churn for a specific branch" do
@@ -131,7 +131,7 @@ describe "Churn class" do
              "git checkout dev && "+
              "git checkout master", :out => "")
       expect(Churn.compute[:insertions]).to eq(48)
-      expect(Churn.compute("dev")[:insertions]).to eq(57)
+      expect(Churn.compute({git_params: "dev"})[:insertions]).to eq(57)
     end
 
   end

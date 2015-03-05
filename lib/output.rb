@@ -1,12 +1,12 @@
 class Output
-  def self.as result, opt = {}
-    case opt[:format]
+  def self.as result, format
+    case format
     when nil
       Output::as_text result
     when '--json'
       Output::as_json result
     else
-      "churn: #{opt[:format]} option cannot be interpreted"
+      "churn: #{format} option cannot be interpreted"
     end
   end
 

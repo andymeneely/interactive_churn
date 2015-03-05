@@ -9,7 +9,7 @@ opt = CHURN_OPTS.delete_if{ |k, v| not ARGV.include? v}
 
 begin
   Churn::root_directory = Dir.getwd
-  puts Churn::get_output params, opt
+  puts Churn::get_output opt.merge({git_params: params})
 rescue Exception => e
   puts e.message
 end

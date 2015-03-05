@@ -8,12 +8,12 @@ class Churn
     attr_accessor :root_directory
   end
 
-  def self.compute with_command_line_params = ""
-    count_lines_from git_history_summary with_command_line_params
+  def self.compute opt = {}
+    count_lines_from git_history_summary opt[:git_params]
   end
 
-  def self.get_output cmd_line_params = "", opt = {}
-    Output.as (Churn::compute cmd_line_params), opt
+  def self.get_output opt = {}
+    Output.as (Churn::compute opt), opt[:format]
   end
 
   def self.count_lines_from output
