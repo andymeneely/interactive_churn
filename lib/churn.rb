@@ -21,11 +21,9 @@ class Churn
     deletions = 0
     commits = 0
     output.each do |msg|
-      i1, d1, i2, d2 = msg.match(/(\d*)? insertion.*?(\d*) deletion.*|(\d*)? insertion|(\d*) deletion/).captures
-      insertions += i1.to_i unless i1.nil?
-      insertions += i2.to_i unless i2.nil?
-      deletions += d1.to_i unless d1.nil?
-      deletions += d2.to_i unless d2.nil?
+      c = msg.match(/^\s\d*\sfiles?\schanged(,\s(\d*) insertions?\(\+\))?(,\s(\d*) deletions?\(\-\))?$/).captures
+      insertions += c[1].to_i
+      deletions += c[3].to_i
       commits += 1
     end
     {commits: commits, insertions: insertions, deletions: deletions}

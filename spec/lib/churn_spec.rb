@@ -14,8 +14,7 @@ describe "Churn class" do
   end
 
   it "count insertions and deletions from the last line of git log --stat output" do
-    # expect(Churn.count_lines_from [" 1 file changed", " 2 insertions(+)", " 1 deletion(-)", " 1 file changed", " 1 insertion(+)"]).to include(insertions: 3, deletions: 1)
-    expect(Churn.count_lines_from [" 1 file changed 2 insertions(+) 1 deletion(-)", " 1 file changed 1 insertion(+)"]).to include(insertions: 3, deletions: 1)
+    expect(Churn.count_lines_from [" 1 file changed, 2 insertions(+), 1 deletion(-)", " 1 file changed, 1 insertion(+)"]).to include(insertions: 3, deletions: 1)
   end
 
   context "within a plain directory (non-git repo)" do
