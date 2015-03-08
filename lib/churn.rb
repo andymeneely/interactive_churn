@@ -10,11 +10,16 @@ class Churn
   end
 
   def self.compute opt = {}
-    count_lines_from git_history_summary opt[:git_params]
+    case opt[:compute]
+    when '--affected-lines'
+      count_affected_lines_from git_history opt[:git_params]
+    else
+      count_lines_from git_history_summary opt[:git_params]
+    end
   end
 
   def self.get_output opt = {}
-    Output.as (Churn::compute opt), opt[:format]
+    Output.as (Churn::compute opt), opt
   end
 
   def self.count_lines_from output
@@ -88,20 +93,23 @@ class Churn
     old_set = current_files[current_file]
     affected_lines += (old_set & set).size if(is_affected && !old_set.nil?)
 
-    affected_lines
+    {affected_lines: affected_lines}
   end
 
   def self.get_set_from positions_lengths
-    del_pos, del_length, ins_pos, ins_length = positions_lengths.match(/^@@\s-(\d*),?(\d)?\s\+(\d*),?(\d)?\s@@/).captures
+    match = positions_lengths.match(/^@@\s-(\d*),?(\d)?\s\+(\d*),?(\d)?\s@@/)
     set = Set.new
-    del_pos = del_pos.to_i
-    ins_pos = ins_pos.to_i
-    del_length = "1" if del_length.nil?
-    del_length = del_length.to_i
-    ins_length = "1" if ins_length.nil?
-    ins_length = ins_length.to_i
-    set |= (del_pos..(del_pos + del_length - 1)) unless del_length == 0
-    set |= (ins_pos..(ins_pos + ins_length - 1)) unless ins_length == 0
+    if !match.nil?
+      del_pos, del_length, ins_pos, ins_length = match.captures
+      del_pos = del_pos.to_i
+      ins_pos = ins_pos.to_i
+      del_length = "1" if del_length.nil?
+      del_length = del_length.to_i
+      ins_length = "1" if ins_length.nil?
+      ins_length = ins_length.to_i
+      set |= (del_pos..(del_pos + del_length - 1)) unless del_length == 0
+      set |= (ins_pos..(ins_pos + ins_length - 1)) unless ins_length == 0
+    end
     set
   end
 

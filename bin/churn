@@ -2,7 +2,7 @@
 
 require_relative "../lib/churn.rb"
 
-CHURN_OPTS = {format: '--json'}
+CHURN_OPTS = {format: '--json', compute: '--affected-lines'}
 argv = ARGV - CHURN_OPTS.values
 params = argv.reduce{ |a, b| a + " " + b} || ""
 opt = CHURN_OPTS.delete_if{ |k, v| not ARGV.include? v}
