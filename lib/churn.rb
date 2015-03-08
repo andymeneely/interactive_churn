@@ -56,6 +56,41 @@ class Churn
     end
   end
 
+  def self.count_affected_lines_from output
+    author = ""
+    previous_author = output[0].match(/^Author:.(.*$)/).captures
+    affected_lines = 0
+    set = Set.new
+    current_file = ""
+    current_files = {}
+    is_affected = false
+
+    output.each do |msg|
+      author = msg.match(/^Author:.(.*$)/)
+      if author.nil?
+        file  = msg.match(/^diff.*b\/(.*)$/)
+        if file.nil?
+          set |= get_set_from msg
+        else
+          old_set = current_files[current_file]
+          affected_lines += (old_set & set).size if is_affected && !old_set.nil?
+          current_files[current_file] = set.clone
+          current_file = file.captures[0]
+          set.clear
+        end
+      else
+        author = author.captures
+        is_affected = author != previous_author
+        previous_author = author
+      end
+    end
+
+    old_set = current_files[current_file]
+    affected_lines += (old_set & set).size if(is_affected && !old_set.nil?)
+
+    affected_lines
+  end
+
   def self.get_set_from positions_lengths
     del_pos, del_length, ins_pos, ins_length = positions_lengths.match(/^@@\s-(\d*),?(\d)?\s\+(\d*),?(\d)?\s@@/).captures
     set = Set.new

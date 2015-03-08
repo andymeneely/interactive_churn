@@ -158,6 +158,11 @@ describe "Churn class" do
       expect(Churn::get_set_from "@@ -4,0 +5 @@ class").to eq(Set.new [5])
     end
 
+    it "computes number of affected lines" do
+      expect(Churn::count_affected_lines_from Churn::git_history("HEAD^^^^^^^^^..HEAD^^^^^^")).to eq(9)
+      expect(Churn::count_affected_lines_from Churn::git_history).to eq(12)
+    end
+
   end
 
 end
