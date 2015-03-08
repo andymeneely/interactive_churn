@@ -136,19 +136,17 @@ describe "Churn class" do
     end
 
     it "returns an array of string with author, filename, and data between @@" do
-
-      result = ["Author: Jill <jill@email.edu>",
+      result = ["Author: James <james@email.edu>",
+                "diff --git a/factorial.rb b/factorial.rb",
+                "@@ -4,0 +5,4 @@ class Factorial",
+                "diff --git a/test.rb b/test.rb",
+                "@@ -3,0 +4,3 @@ require './factorial'",
+                "Author: Jill <jill@email.edu>",
                 "diff --git a/factorial.rb b/factorial.rb",
                 "@@ -1,0 +2,5 @@ class Factorial",
                 "diff --git a/test.rb b/test.rb",
-                "@@ -5 +5 @@ require './factorial'",
-                "Author: Jill <jill@email.edu>",
-                "diff --git a/factorial.rb b/factorial.rb",
-                "@@ -7 +7 @@ class Factorial",
-                "@@ -10,0 +11,4 @@ class Factorial",
-                "diff --git a/test.rb b/test.rb",
-                "@@ -3 +3,3 @@ require './factorial'"]
-      expect(Churn.git_history "HEAD^^..HEAD").to eq(result)
+                "@@ -5 +5 @@ require './factorial'"]
+      expect(Churn.git_history "HEAD^^^..HEAD^").to eq(result)
     end
 
     it "return a set given the data between @@" do
