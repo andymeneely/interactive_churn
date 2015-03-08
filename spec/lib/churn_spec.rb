@@ -128,11 +128,8 @@ describe "Churn class" do
     end
 
     it "computes churn for a specific branch" do
-      system("cd spec/samplerepo && " +
-             "git checkout dev && "+
-             "git checkout master", :out => "")
       expect(Churn.compute[:insertions]).to eq(48)
-      expect(Churn.compute({git_params: "dev"})[:insertions]).to eq(57)
+      expect(Churn.compute({git_params: "origin/dev"})[:insertions]).to eq(57)
     end
 
     it "returns an array of string with author, filename, and data between @@" do
