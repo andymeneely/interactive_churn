@@ -1,4 +1,5 @@
 require 'oj'
+require 'set'
 require_relative './output'
 
 class Churn
@@ -53,6 +54,20 @@ class Churn
     ensure
       Dir.chdir cwd
     end
+  end
+
+  def self.get_set_from positions_lengths
+    del_pos, del_length, ins_pos, ins_length = positions_lengths.match(/^@@\s-(\d*),?(\d)?\s\+(\d*),?(\d)?\s@@/).captures
+    set = Set.new
+    del_pos = del_pos.to_i
+    ins_pos = ins_pos.to_i
+    del_length = "1" if del_length.nil?
+    del_length = del_length.to_i
+    ins_length = "1" if ins_length.nil?
+    ins_length = ins_length.to_i
+    set |= (del_pos..(del_pos + del_length - 1)) unless del_length == 0
+    set |= (ins_pos..(ins_pos + ins_length - 1)) unless ins_length == 0
+    set
   end
 
   private

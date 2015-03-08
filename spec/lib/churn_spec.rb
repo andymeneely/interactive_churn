@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'set'
 
 describe "Churn class" do
   COMMAND_NAME = 'ichurn'
@@ -148,6 +149,15 @@ describe "Churn class" do
                 "diff --git a/test.rb b/test.rb",
                 "@@ -3 +3,3 @@ require './factorial'"]
       expect(Churn.git_history "HEAD^^..HEAD").to eq(result)
+    end
+
+    it "return a set given the data between @@" do
+      expect(Churn::get_set_from "@@ -1,2 +3,4 @@").to eq(Set.new [1, 2, 3, 4, 5, 6])
+      expect(Churn::get_set_from "@@ -1 +3,2 @@").to eq(Set.new [1, 3, 4])
+      expect(Churn::get_set_from "@@ -9 +8,0 @@").to eq(Set.new [9])
+      expect(Churn::get_set_from "@@ -1 +1 @@").to eq(Set.new [1])
+      expect(Churn::get_set_from "@@ -4,0 +5,6 @@ class").to eq(Set.new [5, 6, 7, 8, 9, 10])
+      expect(Churn::get_set_from "@@ -4,0 +5 @@ class").to eq(Set.new [5])
     end
 
   end
