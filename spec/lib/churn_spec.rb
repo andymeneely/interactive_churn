@@ -134,6 +134,22 @@ describe "Churn class" do
       expect(Churn.compute({git_params: "dev"})[:insertions]).to eq(57)
     end
 
+    it "returns an array of string with author, filename, and data between @@" do
+
+      result = ["Author: Jill <jill@email.edu>",
+                "diff --git a/factorial.rb b/factorial.rb",
+                "@@ -1,0 +2,5 @@ class Factorial",
+                "diff --git a/test.rb b/test.rb",
+                "@@ -5 +5 @@ require './factorial'",
+                "Author: Jill <jill@email.edu>",
+                "diff --git a/factorial.rb b/factorial.rb",
+                "@@ -7 +7 @@ class Factorial",
+                "@@ -10,0 +11,4 @@ class Factorial",
+                "diff --git a/test.rb b/test.rb",
+                "@@ -3 +3,3 @@ require './factorial'"]
+      expect(Churn.git_history "HEAD^^..HEAD").to eq(result)
+    end
+
   end
 
 end

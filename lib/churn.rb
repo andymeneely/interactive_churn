@@ -42,6 +42,19 @@ class Churn
     end
   end
 
+  def self.git_history cmd_line_params = ""
+    cwd = Dir.getwd
+    begin
+      Dir.chdir root_directory
+      check_exceptions cmd_line_params
+      %x[ git log --no-merges --stat --reverse --unified=0 #{cmd_line_params} | grep -E "Author:|diff|@@.*@@" ].split(/\n/)
+    rescue Errno::ENOENT
+      raise StandardError, "#{Churn::COMMAND_NAME}: #{Churn.root_directory}: No such file or directory"
+    ensure
+      Dir.chdir cwd
+    end
+  end
+
   private
     def self.check_exceptions cmd_line_params
       output = %x[ git log -p -1 #{cmd_line_params} 2>&1 ]
