@@ -40,7 +40,7 @@ class Churn
     begin
       Dir.chdir root_directory
       check_exceptions cmd_line_params
-      %x[ git log --no-merges --stat #{cmd_line_params} | grep "^ [0-9]* file" ].split(/\n/)
+      %x[ git log --no-merges --stat #{cmd_line_params} | grep -E "^\s[0-9]+\sfiles?\s" ].split(/\n/)
     rescue Errno::ENOENT
       raise StandardError, "#{Churn::COMMAND_NAME}: #{Churn.root_directory}: No such file or directory"
     ensure
@@ -53,7 +53,9 @@ class Churn
     begin
       Dir.chdir root_directory
       check_exceptions cmd_line_params
-      %x[ git log --no-merges --stat --reverse --unified=0 #{cmd_line_params} | grep -E "Author:|diff|@@.*@@" ].split(/\n/)
+      # The commented regex should be more accurate, but it doesn't work. Why?
+      # %x[ git log --no-merges --stat --reverse --unified=0 #{cmd_line_params} | grep -E "^(Author:\s|diff\s--git\sa|@@\s\-[0-9]+(,[0-9]+)?\s\+[0-9]+(,[0-9]+)?\s@@)" ].split(/\n/)
+      %x[ git log --no-merges --stat --reverse --unified=0 #{cmd_line_params} | grep -E "^(Author:\s|diff\s--git\sa|@@\s\-[0-9]+(,[0-9]+)?\s\+[0-9]*(,[0-9]+)?.*@@)" ].split(/\n/)
     rescue Errno::ENOENT
       raise StandardError, "#{Churn::COMMAND_NAME}: #{Churn.root_directory}: No such file or directory"
     ensure
