@@ -10,44 +10,29 @@ class Churn
   end
 
   def self.compute opt = {}
-    count_lines_from git_history_summary opt[:git_params]
+    set_default_options
+    check_exceptions opt
   end
 
-  def self.get_output opt = {}
-    Output.as (Churn::compute opt), opt
-  end
-
-  def self.count_lines_from output
-    insertions = 0
-    deletions = 0
-    commits = 0
-    output.each do |msg|
-      c = msg.match(/^\s\d*\sfiles?\schanged(,\s(\d*) insertions?\(\+\))?(,\s(\d*) deletions?\(\-\))?$/).captures
-      insertions += c[1].to_i
-      deletions += c[3].to_i
-      commits += 1
-    end
-    {commits: commits, insertions: insertions, deletions: deletions}
-  end
-
-  def self.git_history_summary cmd_line_params = ""
+  def self.check_exceptions opt = {}
     cwd = Dir.getwd
     begin
+      raise StandardError, "#{COMMAND_NAME}: Not root directory specified" unless !root_directory.nil?
+      raise StandardError, "#{COMMAND_NAME}: #{root_directory}: Not a directory" unless File.directory?(root_directory)
+
       Dir.chdir root_directory
-      check_exceptions cmd_line_params
-      %x[ git log --no-merges --stat #{cmd_line_params} | grep -E "^\s[0-9]+\sfiles?\s" ].split(/\n/)
-    rescue Errno::ENOENT
-      raise StandardError, "#{Churn::COMMAND_NAME}: #{Churn.root_directory}: No such file or directory"
+      output = %x[ git log -p -1 #{opt[:git_params]} 2>&1 ]
+      output = output.gsub(/git <command>/, COMMAND_NAME)
+      raise StandardError, output unless output !~ /^fatal:/
     ensure
       Dir.chdir cwd
     end
   end
 
   private
-    def self.check_exceptions cmd_line_params
-      output = %x[ git log -p -1 #{cmd_line_params} 2>&1 ]
-      output = output.gsub(/git <command>/, COMMAND_NAME)
-      raise StandardError, output unless output !~ /^fatal:/
+    def self.set_default_options opt = {}
+      opt[:git_params] |= ""
+      opt[:format] |= ""
+      opt[:compute] |= ""
     end
-
 end

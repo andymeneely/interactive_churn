@@ -2,6 +2,7 @@
 
 require_relative "../lib/churn.rb"
 require_relative "../lib/churn_affected_line.rb"
+require_relative "../lib/churn_standard.rb"
 
 CHURN_OPTS = {format: '--json', compute: '--affected-lines'}
 argv = ARGV - CHURN_OPTS.values
@@ -14,8 +15,8 @@ begin
     ChurnAffectedLine::root_directory = Dir.getwd
     puts ChurnAffectedLine::get_output opt.merge({git_params: params})
   else
-    Churn::root_directory = Dir.getwd
-    puts Churn::get_output opt.merge({git_params: params})
+    ChurnStandard::root_directory = Dir.getwd
+    puts ChurnStandard::get_output opt.merge({git_params: params})
   end
 
 rescue Exception => e

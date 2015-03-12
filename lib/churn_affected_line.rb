@@ -4,6 +4,7 @@ require_relative './output'
 class ChurnAffectedLine < Churn
 
   def self.compute opt = {}
+    super opt
     count_affected_lines_from git_history opt[:git_params]
   end
 
@@ -15,8 +16,7 @@ class ChurnAffectedLine < Churn
     cwd = Dir.getwd
     begin
       Dir.chdir root_directory
-      check_exceptions cmd_line_params
-      # The commented regex should be more accurate, but it doesn't work. Why?
+      # @TODO The commented regex should be more accurate, but it doesn't work. Why?
       # %x[ git log --no-merges --stat --reverse --unified=0 #{cmd_line_params} | grep -E "^(Author:\s|diff\s--git\sa|@@\s\-[0-9]+(,[0-9]+)?\s\+[0-9]+(,[0-9]+)?\s@@)" ].split(/\n/)
       %x[ git log --no-merges --stat --reverse --unified=0 #{cmd_line_params} | grep -E "^(Author:\s|diff\s--git\sa|@@\s\-[0-9]+(,[0-9]+)?\s\+[0-9]*(,[0-9]+)?.*@@)" ].split(/\n/)
     rescue Errno::ENOENT
