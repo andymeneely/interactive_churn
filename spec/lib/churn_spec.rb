@@ -156,8 +156,8 @@ describe "Churn class" do
     end
 
     it "computes number of affected lines" do
-      expect(Churn::count_affected_lines_from(Churn::git_history("HEAD^^^^^^^^^..HEAD^^^^^^"))[:affected_lines]).to eq(9)
-      expect(Churn::count_affected_lines_from(Churn::git_history)[:affected_lines]).to eq(12)
+      expect(Churn::compute(git_params: "HEAD^^^^^^^^^..HEAD^^^^^^", compute: "--affected-lines")[:affected_lines]).to eq(9)
+      expect(Churn::compute(compute: "--affected-lines")[:affected_lines]).to eq(12)
     end
 
   end
