@@ -1,6 +1,5 @@
 require 'oj'
 require 'set'
-require_relative './output'
 
 class Churn
   COMMAND_NAME = "ichurn"

@@ -1,15 +1,10 @@
 require_relative './churn'
-require_relative './output'
 
 class ChurnAffectedLine < Churn
 
   def self.compute opt = {}
     super opt
     count_affected_lines_from git_history opt[:git_params]
-  end
-
-  def self.get_output opt = {}
-    Output.as (ChurnAffectedLine::compute opt), opt
   end
 
   def self.git_history cmd_line_params = ""

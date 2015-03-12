@@ -1,15 +1,10 @@
 require_relative './churn'
-require_relative './output'
 
 class ChurnStandard < Churn
 
   def self.compute opt = {}
     super opt
     count_lines_from git_history_summary opt[:git_params]
-  end
-
-  def self.get_output opt = {}
-    Output.as (ChurnStandard::compute opt), opt
   end
 
   def self.count_lines_from output

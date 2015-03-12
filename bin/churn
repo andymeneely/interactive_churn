@@ -3,6 +3,8 @@
 require_relative "../lib/churn.rb"
 require_relative "../lib/churn_affected_line.rb"
 require_relative "../lib/churn_standard.rb"
+require_relative "../lib/json_output.rb"
+require_relative "../lib/text_output.rb"
 
 CHURN_OPTS = {format: '--json', compute: '--affected-lines'}
 argv = ARGV - CHURN_OPTS.values
@@ -10,15 +12,17 @@ params = argv.reduce{ |a, b| a + " " + b} || ""
 opt = CHURN_OPTS.delete_if{ |k, v| not ARGV.include? v}
 
 begin
-  case opt[:compute]
-  when '--affected-lines'
+  opt = opt.merge({git_params: params})
+
+  if opt[:compute] == '--affected-lines'
     ChurnAffectedLine::root_directory = Dir.getwd
-    puts ChurnAffectedLine::get_output opt.merge({git_params: params})
+    puts JsonOutput.affected_lines( ChurnAffectedLine::compute opt) if opt[:format] == '--json'
+    puts TextOutput.affected_lines( ChurnAffectedLine::compute opt) if opt[:format] == nil
   else
     ChurnStandard::root_directory = Dir.getwd
-    puts ChurnStandard::get_output opt.merge({git_params: params})
+    puts JsonOutput.standard( ChurnStandard::compute opt) if opt[:format] == '--json'
+    puts TextOutput.standard( ChurnStandard::compute opt) if opt[:format] == nil
   end
-
 rescue Exception => e
   puts e.message
 end
