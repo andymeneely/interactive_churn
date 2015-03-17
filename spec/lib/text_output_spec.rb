@@ -9,7 +9,7 @@ describe "TextOutput class" do
   end
 
   it "returns a string with number of commits envolved, number of lines inserted and deleted, and the total churn" do
-    expect(TextOutput.standard ChurnStandard.compute).to eq("Commits:       10\nTotal Churn:   68\nLines added:   48\nLines deleted: 20\n")
+    expect(TextOutput.standard ChurnStandard.compute).to eq("Commits:       10\nTotal Churn:   66\nLines added:   47\nLines deleted: 19\n")
   end
 
   it "returns a string with number of commits envolved, number of lines inserted and deleted, and the total churn" do

@@ -10,7 +10,7 @@ describe "JsonOutput class" do
 
   it "returns churns metrics in json format" do
     ChurnStandard.root_directory = @directory_name
-    expect(JsonOutput.standard ChurnStandard.compute).to eq( "{\"Commits\":10,\"Total Churn\":68,\"Lines added\":48,\"Lines deleted\":20}")
+    expect(JsonOutput.standard ChurnStandard.compute).to eq( "{\"Commits\":10,\"Total Churn\":66,\"Lines added\":47,\"Lines deleted\":19}")
   end
 
   it "returns churns metrics in json format" do

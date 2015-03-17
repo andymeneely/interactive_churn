@@ -24,7 +24,7 @@ class ChurnStandard < Churn
     cwd = Dir.getwd
     begin
       Dir.chdir root_directory
-      %x[ git log --no-merges --stat #{cmd_line_params} | grep -E "^\s[0-9]+\sfiles?\s" ].split(/\n/)
+      %x[ git log --stat --ignore-all-space --no-merges #{cmd_line_params} | grep -E "^\s[0-9]*\sfiles?\schanged,|^\s\s\s\sMerge\sbranch" ].split(/\n/)
     ensure
       Dir.chdir cwd
     end

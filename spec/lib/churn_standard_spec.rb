@@ -25,20 +25,20 @@ COMMAND_NAME = 'ichurn'
     end
 
     it "computes the number of inserted lines for the entire history and all files" do
-      expect(ChurnStandard.compute[:insertions]).to eq(48)
+      expect(ChurnStandard.compute[:insertions]).to eq(47)
     end
 
     it "computes the number of deleted lines for the entire history and all files" do
-        expect(ChurnStandard.compute[:deletions]).to eq(20)
+        expect(ChurnStandard.compute[:deletions]).to eq(19)
     end
 
     it "computes the amount of inserted lines on a specific file for the entire history" do
-      expect(ChurnStandard.compute({git_params: "factorial.rb"})[:insertions]).to eq(35)
+      expect(ChurnStandard.compute({git_params: "factorial.rb"})[:insertions]).to eq(34)
       expect(ChurnStandard.compute({git_params: "test.rb"})[:insertions] ).to eq(12)
     end
 
     it "computes the amount of deleted lines on a specific file for the entire history" do
-      expect(ChurnStandard.compute({git_params: "factorial.rb"})[:deletions]).to eq(17)
+      expect(ChurnStandard.compute({git_params: "factorial.rb"})[:deletions]).to eq(16)
       expect(ChurnStandard.compute({git_params: "test.rb"})[:deletions]).to eq(3)
     end
 
@@ -47,7 +47,7 @@ COMMAND_NAME = 'ichurn'
     end
 
     it "returns an array with the history composed with the last lines of the output of `git log --stat` command" do
-      expect(ChurnStandard.git_history_summary).to eq([" 2 files changed, 8 insertions(+), 2 deletions(-)", " 2 files changed, 6 insertions(+), 1 deletion(-)", " 2 files changed, 7 insertions(+)", " 2 files changed, 5 insertions(+), 3 deletions(-)", " 2 files changed, 4 insertions(+), 3 deletions(-)", " 1 file changed, 1 insertion(+)", " 1 file changed, 2 insertions(+), 8 deletions(-)", " 1 file changed, 7 insertions(+), 3 deletions(-)", " 1 file changed, 7 insertions(+)", " 1 file changed, 1 insertion(+)"])
+      expect(ChurnStandard.git_history_summary).to eq([" 2 files changed, 8 insertions(+), 2 deletions(-)", " 2 files changed, 6 insertions(+), 1 deletion(-)", " 2 files changed, 7 insertions(+)", " 2 files changed, 4 insertions(+), 2 deletions(-)", " 2 files changed, 4 insertions(+), 3 deletions(-)", " 1 file changed, 1 insertion(+)", " 1 file changed, 2 insertions(+), 8 deletions(-)", " 1 file changed, 7 insertions(+), 3 deletions(-)", " 1 file changed, 7 insertions(+)", " 1 file changed, 1 insertion(+)"])
     end
 
     # it "returns a string with number of commits envolved, number of lines inserted and deleted, and the total churn" do
@@ -69,8 +69,8 @@ COMMAND_NAME = 'ichurn'
     end
 
     it "computes churn for a specific branch" do
-      expect(ChurnStandard.compute[:insertions]).to eq(48)
-      expect(ChurnStandard.compute({git_params: "origin/dev"})[:insertions]).to eq(57)
+      expect(ChurnStandard.compute[:insertions]).to eq(47)
+      expect(ChurnStandard.compute({git_params: "origin/dev"})[:insertions]).to eq(56)
     end
   end
 end
