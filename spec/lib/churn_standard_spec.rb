@@ -2,7 +2,6 @@ require 'spec_helper'
 require 'set'
 
 describe "ChurnStandard class" do
-COMMAND_NAME = 'ichurn'
 
   it "counts insertions and deletions from the last line of git log --stat output" do
     expect(ChurnStandard.count_lines_from [" 1 file changed, 2 insertions(+), 1 deletion(-)", " 1 file changed, 1 insertion(+)"]).to include(insertions: 3, deletions: 1)

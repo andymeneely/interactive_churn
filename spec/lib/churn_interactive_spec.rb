@@ -2,7 +2,6 @@ require 'spec_helper'
 require 'set'
 
 describe "ChurnInteractive class" do
-  COMMAND_NAME = 'ichurn'
 
   context "within a git repository" do
     before(:each) do
