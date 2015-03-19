@@ -1,5 +1,6 @@
 require 'simplecov'
 require 'coveralls'
+Coveralls.wear!
 
 require_relative '../lib/churn'
 require_relative '../lib/churn_affected_line'
