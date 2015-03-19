@@ -2,14 +2,15 @@
 
 require_relative "../lib/churn.rb"
 require_relative "../lib/churn_affected_line.rb"
+require_relative "../lib/churn_interactive.rb"
 require_relative "../lib/churn_standard.rb"
 require_relative "../lib/json_output.rb"
 require_relative "../lib/text_output.rb"
 
-CHURN_OPTS = {format: '--json', compute: '--affected-lines'}
-argv = ARGV - CHURN_OPTS.values
+CHURN_OPTS = {format: ['--json'], compute: ['--affected-lines', '--interactive-lines']}
+argv = ARGV - CHURN_OPTS.values.flatten
 params = argv.reduce{ |a, b| a + " " + b} || ""
-opt = CHURN_OPTS.delete_if{ |k, v| not ARGV.include? v}
+opt = CHURN_OPTS.inject({}){ |result, (k, v)| result.merge(k => (ARGV & v)[0]) }
 
 begin
   opt = opt.merge({git_params: params})
@@ -18,6 +19,10 @@ begin
     ChurnAffectedLine::root_directory = Dir.getwd
     puts JsonOutput.affected_lines( ChurnAffectedLine::compute opt) if opt[:format] == '--json'
     puts TextOutput.affected_lines( ChurnAffectedLine::compute opt) if opt[:format] == nil
+  elsif opt[:compute] == '--interactive-lines'
+    ChurnInteractive::root_directory = Dir.getwd
+    puts JsonOutput.interactive_lines( ChurnInteractive::compute opt) if opt[:format] == '--json'
+    puts TextOutput.interactive_lines( ChurnInteractive::compute opt) if opt[:format] == nil
   else
     ChurnStandard::root_directory = Dir.getwd
     puts JsonOutput.standard( ChurnStandard::compute opt) if opt[:format] == '--json'

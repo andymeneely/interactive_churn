@@ -3,6 +3,10 @@ class TextOutput
     "%-14s %d\n" % ["Affected lines:", result[:affected_lines]]
   end
 
+  def self.interactive_lines result
+    "%-14s %d\n" % ["Interactive lines:", result[:interactive_lines]]
+  end
+
   def self.standard result
     "%-14s %d\n" % ["Commits:", result[:commits]] +
     "%-14s %d\n" % ["Total Churn:", result[:insertions] + result[:deletions]] +
