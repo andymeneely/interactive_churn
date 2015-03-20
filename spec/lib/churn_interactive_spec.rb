@@ -31,6 +31,7 @@ describe "ChurnInteractive class" do
       expect(ChurnInteractive::get_array_of_start_end_delition "@@ -9 +8,0 @@").to eq([9,9])
       expect(ChurnInteractive::get_array_of_start_end_delition "@@ -4,0 +5,6 @@ class").to eq(nil)
       expect(ChurnInteractive::get_array_of_start_end_delition "@@ -0,0 +1,7 @@").to eq(nil)
+      expect(ChurnInteractive::get_array_of_start_end_delition "@@ -4 +12,109 @@").to eq([4,4])
     end
 
     it "computes number of affected lines" do

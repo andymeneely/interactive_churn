@@ -42,7 +42,7 @@ class ChurnInteractive < Churn
         current_file = file_match.captures[0]
       end
 
-      at_match = line.match(/^@@\s-(\d*),?(\d)?\s\+(\d*),?(\d)?\s@@/)
+      at_match = line.match(/^@@\s-(\d*),?(\d*)?\s\+(\d*),?(\d*)?\s@@/)
       unless at_match.nil?
         del_start_end = get_array_of_start_end_delition line
         affected_lines += count_interactive_lines_from_blame( current_commit, current_author, current_file, del_start_end) unless del_start_end.nil?
@@ -70,12 +70,12 @@ class ChurnInteractive < Churn
   end
 
   def self.get_array_of_start_end_delition positions_lengths
-    match = positions_lengths.match(/^@@\s-(\d*),?(\d)?\s\+(\d*),?(\d)?\s@@/)
+    match = positions_lengths.match(/^@@\s-(\d*),?(\d*)?\s\+(\d*),?(\d*)?\s@@/)
     array = nil
     unless match.nil?
       del_pos, del_length, ins_pos, ins_length = match.captures
       del_pos = del_pos.to_i
-      del_length = "1" if del_length.nil?
+      del_length = "1" if del_length.empty?
       del_length = del_length.to_i
       if del_length > 0
         array = []
