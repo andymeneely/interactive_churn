@@ -17,5 +17,28 @@ describe "Churn command" do
     output = %x[ churn --affected-lines --json]
     expect(output).to match /^{\"Affected lines\":\d*}\n$/
   end
+  it "prints interactive lines as text by default" do
+    output = %x[ churn --interactive-lines ]
+    expect(output).to match /^Interactive lines:\s*\d*\s$/
+  end
+  it "prints interactive lines as json" do
+    output = %x[ churn --interactive-lines --json]
+    expect(output).to match /^{\"Interactive lines\":\d*}\n$/
+  end
+  it "returns an error when --interactive-lines --affected-lines are passed" do
+    msg = "parse error: --affected-lines and --interactive-lines are mutually exclusive\n" +
+          "(-h or --help will show valid options)\n"
+    output = %x[ churn --interactive-lines --affected-lines]
+    expect(output).to eq(msg)
+  end
+  it "returns the help when -help is passed" do
+    msg = "churn [--affected-lines | --interactive-lines] [--json] [any git params]\n" +
+          "Command line that returns churn related metrics.\n" +
+          "        --json                       Return metric in json format\n" +
+          "        --affected-lines             Compute affected lines\n" +
+          "        --interactive-lines          Compute interactive lines\n" +
+          "exit\n"
+    output = %x[ churn --help]
+    expect(output).to eq(msg)
+  end
 end
-

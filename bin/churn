@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-
+require 'optparse'
 require_relative "../lib/churn.rb"
 require_relative "../lib/churn_affected_line.rb"
 require_relative "../lib/churn_interactive.rb"
@@ -7,27 +7,49 @@ require_relative "../lib/churn_standard.rb"
 require_relative "../lib/json_output.rb"
 require_relative "../lib/text_output.rb"
 
-CHURN_OPTS = {format: ['--json'], compute: ['--affected-lines', '--interactive-lines']}
+CHURN_OPTS = {format: ['-j', '--json'], compute: ['-a', '--affected-lines', '-i', '--interactive-lines']}
+# remove from ARGV our options
 argv = ARGV - CHURN_OPTS.values.flatten
-params = argv.reduce{ |a, b| a + " " + b} || ""
-opt = CHURN_OPTS.inject({}){ |result, (k, v)| result.merge(k => (ARGV & v)[0]) }
+# make one string for all other parameters that git will deal with
+git_params = argv.reduce{ |a, b| a + " " + b} || ""
 
-begin
-  opt = opt.merge({git_params: params})
+churn_opts = {}
+a = false
+i = false
 
-  if opt[:compute] == '--affected-lines'
-    ChurnAffectedLine::root_directory = Dir.getwd
-    puts JsonOutput.affected_lines( ChurnAffectedLine::compute opt) if opt[:format] == '--json'
-    puts TextOutput.affected_lines( ChurnAffectedLine::compute opt) if opt[:format] == nil
-  elsif opt[:compute] == '--interactive-lines'
-    ChurnInteractive::root_directory = Dir.getwd
-    puts JsonOutput.interactive_lines( ChurnInteractive::compute opt) if opt[:format] == '--json'
-    puts TextOutput.interactive_lines( ChurnInteractive::compute opt) if opt[:format] == nil
-  else
-    ChurnStandard::root_directory = Dir.getwd
-    puts JsonOutput.standard( ChurnStandard::compute opt) if opt[:format] == '--json'
-    puts TextOutput.standard( ChurnStandard::compute opt) if opt[:format] == nil
+OptionParser.new do |opts|
+  opts.banner = "churn [--affected-lines | --interactive-lines] [--json] [any git params]"
+  opts.separator "Command line that returns churn related metrics."
+  opts.version = InteractiveChurn::VERSION
+  opts.on('--json', 'Return metric in json format') { churn_opts[:format] = '--json' }
+  opts.on('--affected-lines', 'Compute affected lines') { a = true; churn_opts[:compute] = '--affected-lines' }
+  opts.on('--interactive-lines', 'Compute interactive lines') { i = true; churn_opts[:compute] = '--interactive-lines' }
+
+  begin
+    opts.parse!
+    raise OptionParser::ParseError.new("--affected-lines and --interactive-lines are mutually exclusive") if a && i
+
+    opt = churn_opts.merge({git_params: git_params})
+
+    if opt[:compute] == '--affected-lines'
+      ChurnAffectedLine::root_directory = Dir.getwd
+      puts JsonOutput.affected_lines( ChurnAffectedLine::compute opt) if opt[:format] == '--json'
+      puts TextOutput.affected_lines( ChurnAffectedLine::compute opt) if opt[:format] == nil
+    elsif opt[:compute] == '--interactive-lines'
+      ChurnInteractive::root_directory = Dir.getwd
+      puts JsonOutput.interactive_lines( ChurnInteractive::compute opt) if opt[:format] == '--json'
+      puts TextOutput.interactive_lines( ChurnInteractive::compute opt) if opt[:format] == nil
+    else
+      ChurnStandard::root_directory = Dir.getwd
+      puts JsonOutput.standard( ChurnStandard::compute opt) if opt[:format] == '--json'
+      puts TextOutput.standard( ChurnStandard::compute opt) if opt[:format] == nil
+    end
+
+  rescue OptionParser::ParseError => error
+    puts error
+    puts "(-h or --help will show valid options)"
+    exit 1
+  rescue Exception => e
+    puts e.message
   end
-rescue Exception => e
-  puts e.message
 end
