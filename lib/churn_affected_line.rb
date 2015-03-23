@@ -1,4 +1,4 @@
-require_relative './churn'
+require 'churn'
 
 class ChurnAffectedLine < Churn
 

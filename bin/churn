@@ -1,11 +1,11 @@
 #!/usr/bin/ruby
 require 'optparse'
-require_relative "../lib/churn.rb"
-require_relative "../lib/churn_affected_line.rb"
-require_relative "../lib/churn_interactive.rb"
-require_relative "../lib/churn_standard.rb"
-require_relative "../lib/json_output.rb"
-require_relative "../lib/text_output.rb"
+require "churn.rb"
+require "churn_affected_line.rb"
+require "churn_interactive.rb"
+require "churn_standard.rb"
+require "json_output.rb"
+require "text_output.rb"
 
 CHURN_OPTS = {format: ['-j', '--json'], compute: ['-a', '--affected-lines', '-i', '--interactive-lines']}
 # remove from ARGV our options
