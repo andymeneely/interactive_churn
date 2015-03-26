@@ -3,42 +3,29 @@ require 'set'
 
 describe "ChurnStandard class" do
 
-  context "using objects" do
-      before(:each) do
-      @churn = ChurnStandard.new(Dir.getwd + "/spec/samplerepo")
-    end
-
-    it "computes the interactive churn in a specific commit" do
-      expect(@churn.compute).to eq(66)
-    end
+  before(:each) do
+    @churn = ChurnStandard.new(Dir.getwd + "/spec/samplerepo")
   end
 
+  it "computes the interactive churn in a specific commit" do
+    expect(@churn.compute).to eq(66)
+  end
 
+  it "computes churn with HEAD as default revision" do
+    expect(@churn.compute).to eq(@churn.compute "HEAD")
+  end
 
+  it "computes the number of commits, lines deleted, and lines inserted" do
+    @churn.compute
+    expect(@churn.commits).to eq(10)
+    expect(@churn.insertions).to eq(47)
+    expect(@churn.deletions).to eq(19)
+  end
 
-  # it "counts insertions and deletions from the last line of git log --stat output" do
-  #   expect(ChurnStandard.count_lines_from [" 1 file changed, 2 insertions(+), 1 deletion(-)", " 1 file changed, 1 insertion(+)"]).to include(insertions: 3, deletions: 1)
+  # it "computes the number of inserted lines for the entire history and all files" do
+  #   @churn.compute
+  #   expect(@churn.insertions).to eq(47)
   # end
-
-  # it "has the same current directory before and after calling compute" do
-  #   cwd = Dir.getwd
-  #   ChurnStandard.compute rescue # => no matter if there is an exception, the expectation should be met
-  #   expect(cwd).to eq(Dir.getwd)
-  # end
-
-  # context "within a git repository" do
-  #   before(:each) do
-  #     @directory_name = Dir.getwd + "/spec/samplerepo"
-  #     ChurnStandard.root_directory = @directory_name
-  #   end
-
-  #   it "computes churn with HEAD as default revision" do
-  #     expect(ChurnStandard.compute).to eq(ChurnStandard.compute({git_params: "HEAD"}))
-  #   end
-
-  #   it "computes the number of inserted lines for the entire history and all files" do
-  #     expect(ChurnStandard.compute[:insertions]).to eq(47)
-  #   end
 
   #   it "computes the number of deleted lines for the entire history and all files" do
   #       expect(ChurnStandard.compute[:deletions]).to eq(19)

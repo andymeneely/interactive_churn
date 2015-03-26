@@ -4,11 +4,10 @@ require 'churn'
 class ChurnAffectedLine < Churn
 
   # Initializes a new instance of Churn with a directory as aparam. By default, the current working directory is set.
-  # * Params:
-  # wd: a string with the path of a directory.
-  def initialize dir = Dir.getwd
+  # @params wd: a string with the path of a directory.
+  def initialize wd = Dir.getwd
+    super
     @prior_commit = {author: "", sets: [Set.new, Set.new]}
-    @git = GitCmd.new(dir)
   end
 
   # Captures lines nedeed to compute interactive churn from a regular expression match of git patch-at line like `@@ -a,b +c,d @@`.
