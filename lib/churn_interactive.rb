@@ -1,7 +1,21 @@
 require 'churn'
+require 'set'
 
 # A class responsible to compute interactive code churn metric.
 class ChurnInteractive < Churn
+
+  # Attribute to get the number of lines deleted of the same author.
+  attr_reader :self_churn
+  # Attribute to get the number of original authors affected.
+  attr_reader :authors_affected
+
+  # Initializes a new instance of ChurnInteractive.
+  # @params wd: a string with the path of a directory.
+  def initialize wd = Dir.getwd
+    super
+    @authors_affected = 0
+    @self_churn = 0
+  end
 
   # Captures lines nedeed to compute interactive churn from a regular expression match of git patch-at line like `@@ -a,b +c,d @@`.
   # It is a method call from the template method: Churn#compute
@@ -30,12 +44,19 @@ class ChurnInteractive < Churn
   # The total interactive churn (or affected lines) for a file in a commit.
   def count(commit, author, file, lines_del)
     interactive_lines = 0
+    a = Set.new
     unless lines_del.empty?
       @git.blame(file, "#{commit}^", lines_del).each_line do |line|
         orig_author = line.match(AUTHOR_BLAME).captures[0]
-        interactive_lines += 1 if(orig_author != author)
+        if(orig_author != author)
+          a.add orig_author
+          interactive_lines += 1
+        else
+          @self_churn += 1
+        end
       end
     end
+    @authors_affected += a.size
     interactive_lines
   end
 end

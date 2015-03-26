@@ -15,6 +15,8 @@ describe "ChurnInteractive class" do
   end
 
   it "computes the interactive churn in a specific commit" do
-    expect(@ichurn.compute).to eq(16)
+    expect(@ichurn.compute "HEAD -- *.rb").to eq(16)
+    expect(@ichurn.self_churn).to eq(3)
+    expect(@ichurn.authors_affected).to eq(8)
   end
 end
