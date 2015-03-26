@@ -6,6 +6,46 @@ describe "GitCmd class" do
     expect(GitCmd.new.wd).to eq(cwd)
   end
 
+  context "within a plain directory (non-git repo)" do
+    before(:each) do
+      @directory_name = Dir.getwd + "/.." + "/churn_test_directory"
+      system("mkdir #{@directory_name}")
+      @git_cmd = GitCmd.new @directory_name
+    end
+
+    it "has the same current directory before and after checking expections" do
+      cwd = Dir.getwd
+      @git_cmd.log() rescue
+      expect(cwd).to eq(Dir.getwd)
+    end
+
+    it "raises an exception if the root_directory is not a git repository" do
+      msg = "fatal: Not a git repository (or any of the parent directories): .git\n"
+      expect { @git_cmd.log }.to raise_error(StandardError, msg)
+    end
+
+    after(:each) do
+      system("rm -r -f #{@directory_name}")
+    end
+  end
+
+  context "within a git repo with no commits" do
+    before(:each) do
+      @directory_name = Dir.getwd + "/.." + "/churn_test_directory"
+      system("git init #{@directory_name} > /dev/null")
+      @git_cmd = GitCmd.new @directory_name
+    end
+
+    it "raises an exception when invoking compute method" do
+      msg = "fatal: bad default revision 'HEAD'\n"
+      expect { @git_cmd.log }.to raise_error(StandardError, msg)
+    end
+
+    after(:each) do
+      system("rm -r -f #{@directory_name}")
+    end
+  end
+
   context "within /spec/samplerep git sample repo" do
     before(:each) do
       @git = GitCmd.new(Dir.getwd + "/spec/samplerepo")

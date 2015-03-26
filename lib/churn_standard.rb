@@ -1,36 +1,38 @@
 require 'churn'
 
+# A class respomnsible to compute standard code churn metric.
 class ChurnStandard < Churn
 
-  def self.compute opt = {}
-    super opt
-    count_lines_from git_history_summary opt[:git_params]
+  # Captures lines nedeed to compute a standard churn from a regular expression match of git patch-at line like `@@ -a,b +c,d @@`.
+  # It is a method call from the template method: Churn#compute
+  # * Params:
+  # patch_match: a MatchData resulted from the match method invoked in a string.
+  # * Return:
+  # An array of integer corresponding to length of deleted and inserted lines, e.i.:
+  #   from "@@ -1,2 +3,4 @@" it returns [2, 4]
+  def capture_lines patch_match
+    return nil if patch_match.nil?
+
+    array = capture_all_lines(patch_match)
+    [array[1], array[3]]
   end
 
-  def self.count_lines_from output
-    insertions = 0
-    deletions = 0
-    commits = 0
-    output.each do |msg|
-      c = msg.match(/^\s\d*\sfiles?\schanged(,\s(\d*) insertions?\(\+\))?(,\s(\d*) deletions?\(\-\))?$/)
-      unless c.nil?
-        c = c.captures
-        insertions += c[1].to_i
-        deletions += c[3].to_i
+  # Counts deleted and inserted lines.
+  # It is a method call from the template method: Churn#compute. It is called for each file for each commit in the log.
+  # * Params:
+  # commit: the commit SHA-1.
+  # author: the author of the commit.
+  # file: the the file changed in the commit.
+  # lines_ins_del: and array with length of lines inserted and deleted.
+  # * Return:
+  # The total churn for a file in a commit.
+  def count(commit, author, file, lines_ins_del)
+    churn = 0
+    unless lines_ins_del.empty?
+      lines_ins_del.each do |i, d|
+        churn += i + d
       end
-      commits += 1
     end
-    {commits: commits, insertions: insertions, deletions: deletions}
+    churn
   end
-
-  def self.git_history_summary cmd_line_params = ""
-    cwd = Dir.getwd
-    begin
-      Dir.chdir root_directory
-      %x[ git log --stat --ignore-all-space #{cmd_line_params} | grep -E "^\s[0-9]*\sfiles?\schanged,|^\s\s\s\sMerge\sbranch" ].split(/\n/)
-    ensure
-      Dir.chdir cwd
-    end
-  end
-
 end

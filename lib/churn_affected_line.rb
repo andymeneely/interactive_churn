@@ -1,75 +1,67 @@
 require 'churn'
 
+# A class responsible to compute affected line code churn metric.
 class ChurnAffectedLine < Churn
 
-  def self.compute opt = {}
-    super opt
-    count_affected_lines_from git_history opt[:git_params]
+  # Initializes a new instance of Churn with a directory as aparam. By default, the current working directory is set.
+  # * Params:
+  # wd: a string with the path of a directory.
+  def initialize dir = Dir.getwd
+    @prior_commit = {author: "", sets: [Set.new, Set.new]}
+    @git = GitCmd.new(dir)
   end
 
-  def self.git_history cmd_line_params = ""
-    cwd = Dir.getwd
-    begin
-      Dir.chdir root_directory
-      # @TODO The commented regex should be more accurate, but it doesn't work. Why?
-      # %x[ git log --no-merges --stat --reverse --unified=0 #{cmd_line_params} | grep -E "^(Author:\s|diff\s--git\sa|@@\s\-[0-9]+(,[0-9]+)?\s\+[0-9]+(,[0-9]+)?\s@@)" ].split(/\n/)
-      %x[ git log --no-merges --stat --reverse --unified=0 #{cmd_line_params} | grep -E "^(Author:\s|diff\s--git\sa|@@\s\-[0-9]+(,[0-9]+)?\s\+[0-9]*(,[0-9]+)?.*@@)" ].split(/\n/)
-    rescue Errno::ENOENT
-      raise StandardError, "#{Churn::COMMAND_NAME}: #{Churn.root_directory}: No such file or directory"
-    ensure
-      Dir.chdir cwd
-    end
+  # Captures lines nedeed to compute interactive churn from a regular expression match of git patch-at line like `@@ -a,b +c,d @@`.
+  # It is a method call from the template method: Churn#compute
+  # * Params:
+  # patch_match: a MatchData resulted from the match method invoked in a string, e.g.:
+  #  "@@ -1,2 +3,4 @@".match(ChurnInteractive::PATCH_AT)
+  # * Return:
+  # An array of integer corresponding to the start and end line of deletion, e.i.:
+  #   from "@@ -3,3 +8,2 @@" it returns [3, 5]
+  # if the length of deletion is 0, it return nil.
+  # def capture_lines patch_match
+  #   return nil if patch_match.nil?
+
+  #   array = capture_all_lines(patch_match)
+  #   del = [array[0], array[0] + array[1] - 1] if array[1] > 0
+  #   ins = [array[2], array[2] + array[3] - 1] if array[3] > 0
+  #   [del, ins]
+  # end
+  def capture_lines patch_match
+    # return nil if patch_match.nil?
+    # puts "PATCH---------------- #{patch_match}"
+    array = capture_all_lines(patch_match)
+    del = ins = Set.new
+    del = Set.new(array[0]..array[0] + array[1] - 1) if array[1] > 0
+    ins = Set.new(array[2]..array[2] + array[3] - 1) if array[3] > 0
+    [del, ins]
   end
 
-  def self.count_affected_lines_from output
-    author = ""
-    previous_author = output[0].match(/^Author:.(.*$)/).captures
+  # Counts affected lines, this is deleted or inserted lines that were touched by other author.
+  # It is a method call from the template method: Churn#compute. It is called for each patch for a file and commit in the log.
+  # @param commit [String] The commit SHA-1 as astring.
+  # @param author [String] The author of the commit.
+  # @param file [String] The file involved in the commit.
+  # @@param sets [[Set, Set],..] An array of sets with lines deleted and lines inserted respectively.
+  # @return [Integer] The total affected line churn for a file in a commit.
+  def count(commit, author, file, sets)
     affected_lines = 0
-    set = Set.new
-    current_file = ""
-    current_files = {}
-    is_affected = false
-
-    output.each do |msg|
-      author = msg.match(/^Author:.(.*$)/)
-      if author.nil?
-        file  = msg.match(/^diff.*b\/(.*)$/)
-        if file.nil?
-          set |= get_set_from msg
-        else
-          old_set = current_files[current_file]
-          affected_lines += (old_set & set).size if is_affected && !old_set.nil?
-          current_files[current_file] = set.clone
-          current_file = file.captures[0]
-          set.clear
-        end
-      else
-        author = author.captures
-        is_affected = author != previous_author
-        previous_author = author
+    # puts "SETS------------------>#{sets}"
+    # puts "PRIOR----------------->#{@prior_commit[:sets]}"
+    
+    ai = Set.new
+    ad = Set.new
+    unless sets.empty?
+      sets.each do |i, d|
+        ad |= d
+        ai |= i
+        affected_lines += ((i | d) & (@prior_commit[:sets][0]|@prior_commit[:sets][1])).size if(author != @prior_commit[:author])
       end
     end
-
-    old_set = current_files[current_file]
-    affected_lines += (old_set & set).size if(is_affected && !old_set.nil?)
-
-    {affected_lines: affected_lines}
-  end
-
-  def self.get_set_from positions_lengths
-    match = positions_lengths.match(/^@@\s-(\d*),?(\d)?\s\+(\d*),?(\d)?\s@@/)
-    set = Set.new
-    if !match.nil?
-      del_pos, del_length, ins_pos, ins_length = match.captures
-      del_pos = del_pos.to_i
-      ins_pos = ins_pos.to_i
-      del_length = "1" if del_length.nil?
-      del_length = del_length.to_i
-      ins_length = "1" if ins_length.nil?
-      ins_length = ins_length.to_i
-      set |= (del_pos..(del_pos + del_length - 1)) unless del_length == 0
-      set |= (ins_pos..(ins_pos + ins_length - 1)) unless ins_length == 0
-    end
-    set
+    @prior_commit[:author] = author
+    @prior_commit[:sets] = [ad, ai]
+    
+    affected_lines
   end
 end

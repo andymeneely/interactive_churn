@@ -1,89 +1,41 @@
 require 'churn'
 
+# A class responsible to compute interactive code churn metric.
 class ChurnInteractive < Churn
 
-  def self.compute opt = {}
-    super opt
-    count_interactive_lines_from git_history opt[:git_params]    
+  # Captures lines nedeed to compute interactive churn from a regular expression match of git patch-at line like `@@ -a,b +c,d @@`.
+  # It is a method call from the template method: Churn#compute
+  # * Params:
+  # patch_match: a MatchData resulted from the match method invoked in a string, e.g.:
+  #  "@@ -1,2 +3,4 @@".match(ChurnInteractive::PATCH_AT)
+  # * Return:
+  # An array of integer corresponding to the start and end line of deletion, e.i.:
+  #   from "@@ -3,3 +8,2 @@" it returns [3, 5]
+  # if the length of deletion is 0, it return nil.
+  def capture_lines patch_match
+    return nil if patch_match.nil?
+
+    array = capture_all_lines(patch_match)
+    [array[0], array[0] + array[1] - 1] if array[1] > 0
   end
 
-  def self.git_history cmd_line_params = ""
-    cwd = Dir.getwd
-    begin
-      Dir.chdir root_directory
-      # it returns commit SHA, author, diff with filename, and @@.*@@ lines per file for each commit made
-      %x[ git log --ignore-all-space --reverse --unified=0 #{cmd_line_params} | grep -E "^(commit\s[[:alnum:]]{40}$|Author:\s|diff\s--git\sa|@@\s\-[0-9]+(,[0-9]+)?\s\+[0-9]*(,[0-9]+)?.*@@)" ].split(/\n/)
-    rescue Errno::ENOENT
-      raise StandardError, "#{Churn::COMMAND_NAME}: #{Churn.root_directory}: No such file or directory"
-    ensure
-      Dir.chdir cwd
-    end
-  end
-
-  def self.count_interactive_lines_from output
-    current_commit = ""
-    current_author = ""
-    current_file = ""
-    affected_lines = 0
-
-    output.each do |line|
-      commit_match = line.match(/^commit\s(\w*)$/)
-      unless commit_match.nil?
-        current_commit = commit_match.captures[0]
-      end
-
-      author_match = line.match(/^Author:\s(.*)\s</)
-      unless author_match.nil?
-        current_author = author_match.captures[0]
-      end
-
-      file_match = line.match(/^diff\s--git\sa\/.*\sb\/(.*)$/)
-      unless file_match.nil?
-        current_file = file_match.captures[0]
-      end
-
-      at_match = line.match(/^@@\s-(\d*),?(\d*)?\s\+(\d*),?(\d*)?\s@@/)
-      unless at_match.nil?
-        del_start_end = get_array_of_start_end_delition line
-        affected_lines += count_interactive_lines_from_blame( current_commit, current_author, current_file, del_start_end) unless del_start_end.nil?
+  # Counts interactive lines, this is lines deleted that were writen by other author.
+  # It is a method call from the template method: Churn#compute. It is called for each file for each commit in the log.
+  # * Params:
+  # commit: the commit SHA-1.
+  # author: the author of the commit.
+  # file: the the file changed in the commit.
+  # lines_ins_del: and array with length of lines inserted and deleted.
+  # * Return:
+  # The total interactive churn (or affected lines) for a file in a commit.
+  def count(commit, author, file, lines_del)
+    interactive_lines = 0
+    unless lines_del.empty?
+      @git.blame(file, "#{commit}^", lines_del).each_line do |line|
+        orig_author = line.match(AUTHOR_BLAME).captures[0]
+        interactive_lines += 1 if(orig_author != author)
       end
     end
-    {interactive_lines: affected_lines}
+    interactive_lines
   end
-
-  def self.count_interactive_lines_from_blame( current_commit, current_author, current_file, del_start_end) 
-    cwd = Dir.getwd
-    begin
-      Dir.chdir root_directory
-      start_del = del_start_end[0]
-      end_del = del_start_end[1]
-      affected_lines = 0
-      blame = %x[ git blame -l -L #{start_del},#{end_del} #{current_commit}^ -- #{current_file} ]
-      blame.each_line do |line|
-        orig_author = line.match(/\((.*)\s\d\d\d\d/).captures[0]
-        affected_lines += 1 if(current_author != orig_author)
-      end
-      affected_lines
-    ensure
-      Dir.chdir cwd
-    end
-  end
-
-  def self.get_array_of_start_end_delition positions_lengths
-    match = positions_lengths.match(/^@@\s-(\d*),?(\d*)?\s\+(\d*),?(\d*)?\s@@/)
-    array = nil
-    unless match.nil?
-      del_pos, del_length, ins_pos, ins_length = match.captures
-      del_pos = del_pos.to_i
-      del_length = "1" if del_length.empty?
-      del_length = del_length.to_i
-      if del_length > 0
-        array = []
-        array.push( del_pos)
-        array.push( del_pos + del_length -1)
-      end
-    end
-    array
-  end
-
 end
