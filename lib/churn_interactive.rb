@@ -44,19 +44,19 @@ class ChurnInteractive < Churn
   # The total interactive churn (or affected lines) for a file in a commit.
   def count(commit, author, file, lines_del)
     interactive_lines = 0
-    a = Set.new
+    other_authors = Set.new
     unless lines_del.empty?
       @git.blame(file, "#{commit}^", lines_del).each_line do |line|
         orig_author = line.match(AUTHOR_BLAME).captures[0]
         if(orig_author != author)
-          a.add orig_author
+          other_authors.add orig_author
           interactive_lines += 1
         else
           @self_churn += 1
         end
       end
     end
-    @authors_affected += a.size
+    @authors_affected += other_authors.size
     interactive_lines
   end
 end
