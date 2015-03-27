@@ -12,10 +12,10 @@ describe "ChurnCLI class" do
   churn_opts.each_slice(3) do | churn_opts, churn_class, formatter_class|
     it "prints standard churn as text" do
       output = "output is tested in xxx_formater_spec.rb"
-
-      expect_any_instance_of(churn_class).to receive(:compute).once
+      git_opts = "any options"
+      expect_any_instance_of(churn_class).to receive(:compute).with(git_opts).once
       expect_any_instance_of(churn_class).to receive(:print).with(formatter_class).once.and_return(output)
-      expect(ChurnCLI.print(churn_opts, [])).to eq(output)
+      expect(ChurnCLI.print(churn_opts, git_opts)).to eq(output)
     end
   end
 end

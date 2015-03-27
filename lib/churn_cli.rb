@@ -16,16 +16,16 @@ class ChurnCLI
   
   def self.print churn_opts, git_opts
     if churn_opts.include? INTERACTIVE_CHURN
-      execute ChurnInteractive.new, churn_opts
+      execute ChurnInteractive.new, churn_opts, git_opts
     elsif churn_opts.include? AFFECTED_LINE_CHURN
-      execute ChurnAffectedLine.new, churn_opts
+      execute ChurnAffectedLine.new, churn_opts, git_opts
     else
-      execute ChurnStandard.new, churn_opts
+      execute ChurnStandard.new, churn_opts, git_opts
     end
   end
 
-  def self.execute cs, churn_opts
-    cs.compute
+  def self.execute cs, churn_opts, git_opts
+    cs.compute git_opts
     churn_opts.include?(JSON_FORMAT)? cs.print(JsonFormatter) : cs.print(TextFormatter)
   end
 end
