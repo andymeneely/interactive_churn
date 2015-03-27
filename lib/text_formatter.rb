@@ -1,5 +1,5 @@
 class TextFormatter
-  FORMAT = "%-14s %d\n"
+  FORMAT = "%-15s %d\n"
 
   def self.print h
     h.map do |k, v|
