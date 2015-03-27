@@ -4,8 +4,8 @@ require "churn.rb"
 require "churn_affected_line.rb"
 require "churn_interactive.rb"
 require "churn_standard.rb"
-require "json_output.rb"
-require "text_output.rb"
+require "json_formatter.rb"
+require "text_formatter.rb"
 
 CHURN_OPTS = {format: ['-j', '--json'], compute: ['-a', '--affected-lines', '-i', '--interactive-lines']}
 # remove from ARGV our options
@@ -34,16 +34,16 @@ OptionParser.new do |opts|
     if opt[:compute] == '--affected-lines'
       # ChurnAffectedLine::root_directory = Dir.getwd
       achurn = ChurnAffectedLine.new
-      puts JsonOutput.affected_lines( achurn.compute git_params) if opt[:format] == '--json'
-      puts TextOutput.affected_lines( achurn.compute git_params) if opt[:format] == nil
+      puts JsonFormatter.affected_lines( achurn.compute git_params) if opt[:format] == '--json'
+      puts TextFormatter.affected_lines( achurn.compute git_params) if opt[:format] == nil
     elsif opt[:compute] == '--interactive-lines'
       ichurn = ChurnInteractive.new
-      puts JsonOutput.interactive_lines(ichurn.compute git_params) if opt[:format] == '--json'
-      puts TextOutput.interactive_lines(ichurn.compute git_params) if opt[:format] == nil
+      puts JsonFormatter.interactive_lines(ichurn.compute git_params) if opt[:format] == '--json'
+      puts TextFormatter.interactive_lines(ichurn.compute git_params) if opt[:format] == nil
     else
       churn = ChurnStandard.new
-      puts JsonOutput.standard( churn.compute git_params) if opt[:format] == '--json'
-      puts TextOutput.standard( churn.compute git_params) if opt[:format] == nil
+      puts JsonFormatter.standard( churn.compute git_params) if opt[:format] == '--json'
+      puts TextFormatter.standard( churn.compute git_params) if opt[:format] == nil
     end
 
   rescue OptionParser::ParseError => error

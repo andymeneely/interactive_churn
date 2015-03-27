@@ -6,8 +6,8 @@ require 'churn'
 require 'churn_affected_line'
 require 'churn_interactive'
 require 'churn_standard'
-require 'text_output'
-require 'json_output'
+require 'text_formatter'
+require 'json_formatter'
 require 'git_cmd'
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
