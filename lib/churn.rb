@@ -55,6 +55,7 @@ class Churn
   # * Return:
   # A number representing the code churn metric computed.
   def compute git_params = ""
+    @commits = 0
     churn = 0
 
     logs = @git.log(git_params).split(/\n/)

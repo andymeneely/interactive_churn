@@ -23,4 +23,11 @@ describe "ChurnStandard class" do
     expect(@churn.insertions).to eq(34)
     expect(@churn.deletions).to eq(16)
   end
+
+  it "resets to zero the number of commits when the churn is computed" do
+    2.times do
+      expect(@churn.compute "HEAD^..HEAD").to eq(10)
+      expect(@churn.commits).to eq(1)
+    end
+  end
 end
