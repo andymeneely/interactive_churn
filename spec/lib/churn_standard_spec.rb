@@ -24,6 +24,8 @@ describe "ChurnStandard class" do
     expect(@churn.deletions).to eq(16)
   end
 
+  # @todo This test should be for the base class Churn, but this would require
+  # to add methods like Churn.capture_lines and Churn.count
   it "resets to zero the number of commits when the churn is computed" do
     2.times do
       expect(@churn.compute "HEAD^..HEAD").to eq(10)
