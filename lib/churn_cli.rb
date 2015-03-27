@@ -35,15 +35,9 @@ class ChurnCLI
   # Runs the churn metric selected in the params passed in argv
   # @param argv [Array< String>] Array that contains params given to churn command.
   def self.run_with argv
-    begin
-      git_opts = extract_unrelated_churn_options_from argv
-      churn_opts = parse argv
-      print churn_opts, git_opts
-    rescue OptionParser::ParseError => error
-      puts error
-      puts "(-h or --help will show valid options)"
-      exit 1
-    end
+    git_opts = extract_unrelated_churn_options_from argv
+    churn_opts = parse argv
+    print churn_opts, git_opts
   end
 
   # Extract unrelated churn options.

@@ -28,15 +28,14 @@ describe "ChurnCLI class" do
     expect(ChurnCLI.parse ["--json", "--interactive-lines", "HEAD^^", "--", "my_file.rb"]).to eq(["--json", "--interactive-lines"])
   end
 
-  it "raises an exception when churn command doesn't understand a --option" do
-    msg = "invalid option: --not-understandable\n" +
-          "(-h or --help will show valid options)\n"
-    expect{ ChurnCLI.parse ["--not-understandable", "HEAD^^"] }.to raise_error(OptionParser::InvalidOption)
+  it "raises an exception when churn command doesn't understand an --option" do
+    msg = /invalid option: --not-understandable/
+    expect{ ChurnCLI.parse ["--not-understandable", "HEAD^^"] }.to raise_error(OptionParser::InvalidOption, msg)
   end
 
   it "raises an exception if passing mutually exclusive params" do
-    msg = "--affected-lines and --interactive-lines are mutually exclusive options"
-    expect{ ChurnCLI.parse ["--affected-lines", "--interactive-lines", "HEAD^^"] }.to raise_error(OptionParser::ParseError)
+    msg = /--affected-lines and --interactive-lines are mutually exclusive options/
+    expect{ ChurnCLI.parse ["--affected-lines", "--interactive-lines", "HEAD^^"] }.to raise_error(OptionParser::ParseError, msg)
   end
 
   it "runs churn command with different params" do

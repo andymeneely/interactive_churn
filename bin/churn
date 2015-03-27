@@ -1,4 +1,10 @@
 #!/usr/bin/ruby
 require 'churn_cli'
 
-puts ChurnCLI.run_with ARGV
+begin
+  puts ChurnCLI.run_with ARGV
+rescue OptionParser::ParseError => error
+  puts error
+  puts "(-h or --help will show valid options)"
+  exit 1
+end
