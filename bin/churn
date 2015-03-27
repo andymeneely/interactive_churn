@@ -1,11 +1,6 @@
 #!/usr/bin/ruby
 require 'optparse'
-require "churn.rb"
-require "churn_affected_line.rb"
-require "churn_interactive.rb"
-require "churn_standard.rb"
-require "json_formatter.rb"
-require "text_formatter.rb"
+require 'churn_cli'
 
 CHURN_OPTS = {format: ['-j', '--json'], compute: ['-a', '--affected-lines', '-i', '--interactive-lines']}
 # remove from ARGV our options
@@ -13,39 +8,21 @@ argv = ARGV - CHURN_OPTS.values.flatten
 # make one string for all other parameters that git will deal with
 git_params = argv.reduce{ |a, b| a + " " + b} || ""
 
-churn_opts = {}
-a = false
-i = false
+churnopts = []
+a = i = false
 
 OptionParser.new do |opts|
   opts.banner = "churn [--affected-lines | --interactive-lines] [--json] [any git params]"
   opts.separator "Command line that returns churn related metrics."
   opts.version = InteractiveChurn::VERSION
-  opts.on('--json', 'Return metric in json format') { churn_opts[:format] = '--json' }
-  opts.on('--affected-lines', 'Compute affected lines') { a = true; churn_opts[:compute] = '--affected-lines' }
-  opts.on('--interactive-lines', 'Compute interactive lines') { i = true; churn_opts[:compute] = '--interactive-lines' }
+  opts.on('--json', 'Return metric in json format') { churnopts << '--json' }
+  opts.on('--affected-lines', 'Compute affected lines') { a = true; churnopts << '--affected-lines' }
+  opts.on('--interactive-lines', 'Compute interactive lines') { i = true; churnopts << '--interactive-lines' }
 
   begin
     opts.parse!
     raise OptionParser::ParseError.new("--affected-lines and --interactive-lines are mutually exclusive") if a && i
-
-    opt = churn_opts.merge({git_params: git_params})
-
-    if opt[:compute] == '--affected-lines'
-      # ChurnAffectedLine::root_directory = Dir.getwd
-      achurn = ChurnAffectedLine.new
-      puts JsonFormatter.affected_lines( achurn.compute git_params) if opt[:format] == '--json'
-      puts TextFormatter.affected_lines( achurn.compute git_params) if opt[:format] == nil
-    elsif opt[:compute] == '--interactive-lines'
-      ichurn = ChurnInteractive.new
-      puts JsonFormatter.interactive_lines(ichurn.compute git_params) if opt[:format] == '--json'
-      puts TextFormatter.interactive_lines(ichurn.compute git_params) if opt[:format] == nil
-    else
-      churn = ChurnStandard.new
-      puts JsonFormatter.standard( churn.compute git_params) if opt[:format] == '--json'
-      puts TextFormatter.standard( churn.compute git_params) if opt[:format] == nil
-    end
-
+    puts ChurnCLI.print churnopts, git_params
   rescue OptionParser::ParseError => error
     puts error
     puts "(-h or --help will show valid options)"
