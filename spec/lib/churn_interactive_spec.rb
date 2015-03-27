@@ -19,4 +19,11 @@ describe "ChurnInteractive class" do
     expect(@ichurn.self_churn).to eq(3)
     expect(@ichurn.authors_affected).to eq(8)
   end
+
+  it "specifies what to print" do
+    output_formatter = double("OutputFormatter")
+    h = {"Commits:" => 0, "Interactive churn:" => 0, "Sefl churn:" => 0, "Authors affected:" => 0}
+    expect(output_formatter).to receive(:print).with(h)
+    @ichurn.print(output_formatter)
+  end
 end

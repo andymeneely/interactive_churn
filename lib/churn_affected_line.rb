@@ -63,4 +63,11 @@ class ChurnAffectedLine < Churn
     
     affected_lines
   end
+
+  # Tells OutputFormatter object what to print out.
+  # @param output_formatter [OutputFormatter] An object responsible to print in different formats.
+  # @return [String] The total commits, affected lines churn.
+  def print output_formatter
+    output_formatter.print({ "Commits:" => @commits, "Affected lines churn:" => @result})
+  end
 end

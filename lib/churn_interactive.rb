@@ -59,4 +59,11 @@ class ChurnInteractive < Churn
     @authors_affected += other_authors.size
     interactive_lines
   end
+
+  # Tells OutputFormatter object what to print out.
+  # @param output_formatter [OutputFormatter] An object responsible to print in different formats.
+  # @return [String] The total commits, interactive churn, self churn, and authors affectd.
+  def print output_formatter
+    output_formatter.print({ "Commits:" => @commits, "Interactive churn:" => @result, "Sefl churn:" => @self_churn, "Authors affected:" => @authors_affected })
+  end
 end
