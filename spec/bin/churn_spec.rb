@@ -32,12 +32,11 @@ describe "Churn command" do
     expect(output).to eq(msg)
   end
   it "returns the help when -help is passed" do
-    msg = "churn [--affected-lines | --interactive-lines] [--json] [any git params]\n" +
+    msg = "churn [--affected-lines | --interactive-lines] [--json] [any git param]\n" +
           "Command line that returns churn related metrics.\n" +
           "        --json                       Return metric in json format\n" +
           "        --affected-lines             Compute affected lines\n" +
-          "        --interactive-lines          Compute interactive lines\n" +
-          "exit\n"
+          "        --interactive-lines          Compute interactive lines\n"
     output = %x[ churn --help]
     expect(output).to eq(msg)
   end

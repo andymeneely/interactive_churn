@@ -1,34 +1,4 @@
 #!/usr/bin/ruby
-require 'optparse'
 require 'churn_cli'
 
-CHURN_OPTS = ['-j', '--json', '-a', '--affected-lines', '-i', '--interactive-lines']
-# remove churn options from ARGV
-argv = ARGV - CHURN_OPTS
-# make one string for all other parameters that git will deal with
-git_opts = argv.reduce{ |a, b| a + " " + b} || ""
-
-churn_opts = []
-
-OptionParser.new do |opts|
-  opts.banner = "churn [--affected-lines | --interactive-lines] [--json] [any git params]"
-  opts.separator "Command line that returns churn related metrics."
-  opts.version = InteractiveChurn::VERSION
-  opts.on('--json', 'Return metric in json format')           { churn_opts << '--json' }
-  opts.on('--affected-lines', 'Compute affected lines')       { churn_opts << '--affected-lines' }
-  opts.on('--interactive-lines', 'Compute interactive lines') { churn_opts << '--interactive-lines' }
-
-  begin
-    opts.parse!
-    if (churn_opts & ['--affected-lines', '--interactive-lines']).size == 2
-      raise OptionParser::ParseError.new("--affected-lines and --interactive-lines are mutually exclusive options")
-    end
-    puts ChurnCLI.print churn_opts, git_opts
-  rescue OptionParser::ParseError => error
-    puts error
-    puts "(-h or --help will show valid options)"
-    exit 1
-  rescue Exception => e
-    puts e.message
-  end
-end
+puts ChurnCLI.run_with ARGV
