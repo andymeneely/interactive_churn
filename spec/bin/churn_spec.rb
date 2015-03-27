@@ -16,7 +16,6 @@ describe "Churn command" do
   it "prints affected lines as json" do
     output = %x[ churn --affected-lines --json]
     expect(output).to match /^{\"Commits:\":\d+,\"Affected lines churn:\":\d+}\n$/
-    # expect(output).to match /^{\"Affected lines\":\d*}\n$/
   end
   it "prints interactive lines as text by default" do
     output = %x[ churn --interactive-lines ]
@@ -27,7 +26,7 @@ describe "Churn command" do
     expect(output).to match /^{\"Commits:\":\d+,\"Interactive churn:\":\d+,\"Sefl churn:\":\d+,\"Authors affected:\":\d+}\n$/
   end
   it "returns an error when --interactive-lines --affected-lines are passed" do
-    msg = "parse error: --affected-lines and --interactive-lines are mutually exclusive\n" +
+    msg = "parse error: --affected-lines and --interactive-lines are mutually exclusive options\n" +
           "(-h or --help will show valid options)\n"
     output = %x[ churn --interactive-lines --affected-lines]
     expect(output).to eq(msg)
