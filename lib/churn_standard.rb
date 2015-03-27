@@ -44,4 +44,11 @@ class ChurnStandard < Churn
     end
     churn
   end
+
+  # Tells OutputFormatter object what to print out.
+  # @param output_formatter [OutputFormatter] An object responsible to print in different formats.
+  # @return [String] The total commits, standard churn, deletions, and insertions.
+  def print output_formatter
+    output_formatter.print({ "Commits:" => @commits, "Standard churn:" => @result, "Deletions:" => @deletions, "Insertions:" => @insertions })
+  end
 end

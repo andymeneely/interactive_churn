@@ -20,10 +20,14 @@ class Churn
   # Attribute to get the number of commits found after compute churn metric.
   attr_reader :commits
 
+  # Attribute to get the resulted churn metric value after compute the churn.
+  attr_reader :result
+
   # Initializes a new instance of Churn with a directory as aparam. By default, the current working directory is set.
   # @params wd [String] A string with the path of a directory.
   def initialize dir = Dir.getwd
     @commits = 0
+    @result = 0
     @git = GitCmd.new(dir)
   end
 
@@ -83,6 +87,6 @@ class Churn
         churn += count(commit, author, file, lines_ins_del.compact)
       end
     end
-    churn
+    @result = churn
   end
 end

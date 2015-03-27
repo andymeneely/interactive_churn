@@ -32,4 +32,11 @@ describe "ChurnStandard class" do
       expect(@churn.commits).to eq(1)
     end
   end
+
+  it "specifies what to print" do
+    output_formatter = double("OutputFormatter")
+    h = {"Commits:" => 0, "Standard churn:" => 0, "Deletions:" => 0, "Insertions:" => 0}
+    expect(output_formatter).to receive(:print).with(h)
+    @churn.print(output_formatter)
+  end
 end
