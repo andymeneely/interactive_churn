@@ -1,4 +1,5 @@
 require 'optparse'
+require 'interactive_churn/version'
 require 'text_formatter'
 require 'json_formatter'
 require 'churn_standard'
