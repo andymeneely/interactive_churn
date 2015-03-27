@@ -1,4 +1,9 @@
 class JsonFormatter
+
+  def self.print h
+    Oj.dump h
+  end
+
   def self.affected_lines result
     if result.is_a? Hash
       Oj.dump({ 'Affected lines' => result[:affected_lines]})

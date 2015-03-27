@@ -9,6 +9,7 @@ require 'churn_standard'
 require 'text_formatter'
 require 'json_formatter'
 require 'git_cmd'
+require 'churn_cli'
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
   SimpleCov::Formatter::HTMLFormatter,

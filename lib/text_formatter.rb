@@ -1,4 +1,12 @@
 class TextFormatter
+  FORMAT = "%-14s %d\n"
+
+  def self.print h
+    h.map do |k, v|
+      FORMAT % [k, v]
+    end.join
+  end
+
   def self.affected_lines result
     if result.is_a? Hash
       "%-14s %d\n" % ["Affected lines:", result[:affected_lines]]
