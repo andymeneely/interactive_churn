@@ -4,7 +4,7 @@ require 'churn'
 class ChurnAffectedLine < Churn
 
   # Initializes a new instance of Churn with a directory as aparam. By default, the current working directory is set.
-  # @params wd: a string with the path of a directory.
+  # @param wd: a string with the path of a directory.
   def initialize wd = Dir.getwd
     super
     @prior_commit = {author: "", sets: [Set.new, Set.new]}

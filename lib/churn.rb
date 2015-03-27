@@ -17,14 +17,14 @@ class Churn
   # A string with a regular expresion to match groups for each number in the patch-at line from `git log`.
   PATCH_AT     = /^@@\s-(\d*),?(\d*)?\s\+(\d*),?(\d*)?\s@@/
 
-  # Attribute to get the number of commits found after compute churn metric.
+  # Attribute to get the number of commits found after computing churn metric.
   attr_reader :commits
 
-  # Attribute to get the resulted churn metric value after compute the churn.
+  # Attribute to get the resulted churn metric value after computing the churn.
   attr_reader :result
 
-  # Initializes a new instance of Churn with a directory as aparam. By default, the current working directory is set.
-  # @params wd [String] A string with the path of a directory.
+  # Initializes a new instance of Churn.
+  # @param wd [String] A string with the path of a directory.
   def initialize dir = Dir.getwd
     @commits = 0
     @result = 0

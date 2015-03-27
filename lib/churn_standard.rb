@@ -7,7 +7,7 @@ class ChurnStandard < Churn
   attr_reader :insertions, :deletions
 
   # Initializes a new instance of ChurnStandard with a directory as aparam.
-  # @params wd: a string with the path of a directory.
+  # @param wd: a string with the path of a directory.
   def initialize wd = Dir.getwd
     super
     @deletions = 0

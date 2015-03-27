@@ -10,7 +10,7 @@ class ChurnInteractive < Churn
   attr_reader :authors_affected
 
   # Initializes a new instance of ChurnInteractive.
-  # @params wd: a string with the path of a directory.
+  # @param wd: a string with the path of a directory.
   def initialize wd = Dir.getwd
     super
     @authors_affected = 0

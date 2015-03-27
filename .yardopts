@@ -1,0 +1,7 @@
+--readme README.md
+--title 'Interactive Churn API Documentation'
+--markup markdown
+--charset utf-8
+lib/**/*.rb
+-
+LICENSE.txt
