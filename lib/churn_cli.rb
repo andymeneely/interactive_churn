@@ -18,38 +18,51 @@ class ChurnCLI
   # A String storing the option for computing affected line churn metric.
   AFFECTED_LINE_CHURN = "--affected-lines"
   
-  def self.print churn_opts, git_opts
+  # Gets the right churn object based on churn options.
+  # @param churn_opts [Array<String>] Array of strings with churn options.
+  # @return [Churn] An instance of a concrete Churn.
+  def self.get_churn churn_opts
     if churn_opts.include? INTERACTIVE_CHURN
-      execute ChurnInteractive.new, churn_opts, git_opts
+      ChurnInteractive.new
     elsif churn_opts.include? AFFECTED_LINE_CHURN
-      execute ChurnAffectedLine.new, churn_opts, git_opts
+      ChurnAffectedLine.new
     else
-      execute ChurnStandard.new, churn_opts, git_opts
+      ChurnStandard.new
     end
   end
 
-  def self.execute cs, churn_opts, git_opts
-    cs.compute git_opts
-    churn_opts.include?(JSON_FORMAT)? cs.print(JsonFormatter) : cs.print(TextFormatter)
+  # Gets the right formatter class object based on churn options.
+  # @param churn_opts [Array<String>] Array of string with churn options.
+  # @return [Class] A formatter class object: JsonFormatter or TextFormatter.
+  def self.get_formatter churn_opts
+    if churn_opts.include? JSON_FORMAT
+      JsonFormatter
+    else
+      TextFormatter
+    end
   end
 
-  # Runs the churn metric selected in the params passed in argv
+  # Runs the churn metric selected in the params passed in argv and returns the result in the specified format.
   # @param argv [Array< String>] Array that contains params given to churn command.
+  # @return [String] A string with the result.
   def self.run_with argv
-    git_opts = extract_unrelated_churn_options_from argv
+    git_opts = get_git_options_from argv
     churn_opts = parse argv
-    print churn_opts, git_opts
+    churn = get_churn churn_opts
+    formatter = get_formatter churn_opts
+    churn.compute git_opts
+    churn.print formatter
   end
 
   # Extract unrelated churn options.
   # @param argv [Array< String>] Array that contains params given to churn command.
-  def self.extract_unrelated_churn_options_from argv
+  def self.get_git_options_from argv
     (argv - CHURN_OPTS).reduce{ |a, b| a + " " + b} || ""
   end
 
   # Parses params given to churn command line. It uses optparse gem.
-  # @param argv [Array<String>] Array of string with params. It represents the ARGV params given to churn command line
-  # @return [Array<String>] An array of string with churn options
+  # @param argv [Array<String>] Array of string with params. It represents the ARGV params given to churn command line.
+  # @return [Array<String>] An array of string with churn options.
   # @raise [OptionParser] It raises OptionParser error like ParseError or InvalidOption.
   def self.parse argv
     churn_opts = []

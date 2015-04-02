@@ -2,26 +2,9 @@ require 'spec_helper'
 
 describe "ChurnCLI class" do
 
-  churn_opts = [[], ChurnStandard, TextFormatter,
-                ["--json"], ChurnStandard, JsonFormatter,
-                ["--interactive-lines"], ChurnInteractive, TextFormatter,
-                ["--interactive-lines", "--json"], ChurnInteractive, JsonFormatter,
-                ["--affected-lines"], ChurnAffectedLine, TextFormatter,
-                ["--affected-lines", "--json"], ChurnAffectedLine, JsonFormatter]
-
-  churn_opts.each_slice(3) do | churn_opts, churn_class, formatter_class|
-    it "prints standard churn as text" do
-      output = "output is tested in xxx_formater_spec.rb"
-      git_opts = "any options"
-      expect_any_instance_of(churn_class).to receive(:compute).with(git_opts).once
-      expect_any_instance_of(churn_class).to receive(:print).with(formatter_class).once.and_return(output)
-      expect(ChurnCLI.print(churn_opts, git_opts)).to eq(output)
-    end
-  end
-
   it "extracts git options from ARGV" do
     argv = ['--interactive-lines', '--json', 'HEAD^..HEAD', '--' ,'my_file.rb']
-    expect(ChurnCLI.extract_unrelated_churn_options_from argv).to eq('HEAD^..HEAD -- my_file.rb')
+    expect(ChurnCLI.get_git_options_from argv).to eq('HEAD^..HEAD -- my_file.rb')
   end
 
   it "parses option from an array" do
@@ -38,15 +21,38 @@ describe "ChurnCLI class" do
     expect{ ChurnCLI.parse ["--affected-lines", "--interactive-lines", "HEAD^^"] }.to raise_error(OptionParser::ParseError, msg)
   end
 
+  it "instanciates the right churn metric object given churn options" do
+    [[], ChurnStandard,
+     ['--interactive-lines'], ChurnInteractive,
+     ['--json', '--affected-lines'], ChurnAffectedLine,].each_slice(2) do |churn_opts, churn_type|
+      expect(ChurnCLI.get_churn churn_opts).to be_a(churn_type)
+    end
+  end
+
+  it "returns the right class for printing format" do
+    [['--json', '--affected-lines'], JsonFormatter,
+     ['--interactive-lines'], TextFormatter ].each_slice(2) do |churn_opts, formatter_class|
+      expect(ChurnCLI.get_formatter churn_opts).to eq(formatter_class)
+    end
+  end
+
   it "runs churn command with different params" do
-    output = "output is tested in xxx_formater_spec.rb"
     argv = ['--interactive-lines', '--json', 'HEAD^..HEAD', '--' ,'my_file.rb']
     git_opts = "HEAD^..HEAD -- my_file.rb"
     churn_opts = ['--interactive-lines', '--json']
 
-    expect(ChurnCLI).to receive(:extract_unrelated_churn_options_from).with(argv).once.and_return(git_opts)
+    churn = double("ChurnXXX")
+    allow(churn).to receive(:compute)
+    allow(churn).to receive(:print)
+
+    formatter = double("XXXFormatter")
+
+    expect(ChurnCLI).to receive(:get_git_options_from).with(argv).once.and_return(git_opts)
     expect(ChurnCLI).to receive(:parse).with(argv).once.and_return(churn_opts)
-    expect(ChurnCLI).to receive(:print).with(churn_opts, git_opts).once.and_return(output)
-    expect(ChurnCLI.run_with(argv)).to eq(output)
+    expect(ChurnCLI).to receive(:get_churn).with(churn_opts).once.and_return(churn)
+    expect(ChurnCLI).to receive(:get_formatter).with(churn_opts).once.and_return(formatter)
+    expect(churn).to receive(:compute).with(git_opts).once
+    expect(churn).to receive(:print).with(formatter).once
+    ChurnCLI.run_with(argv)
   end
 end
