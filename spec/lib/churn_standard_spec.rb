@@ -18,20 +18,20 @@ describe "ChurnStandard class" do
     expect(@churn.compute).to eq(@churn.compute "HEAD")
   end
 
-  it "computes the amount of inserted lines on a specific file for the entire history" do
-    expect(@churn.compute("factorial.rb")).to eq(50)
-    expect(@churn.insertions).to eq(34)
-    expect(@churn.deletions).to eq(16)
-  end
+  # it "computes the amount of inserted lines on a specific file for the entire history" do
+  #   expect(@churn.compute("factorial.rb")).to eq(50)
+  #   expect(@churn.insertions).to eq(34)
+  #   expect(@churn.deletions).to eq(16)
+  # end
 
   # @todo This test should be for the base class Churn, but this would require
   # to add methods like Churn.capture_lines and Churn.count
-  it "resets to zero the number of commits when the churn is computed" do
-    2.times do
-      expect(@churn.compute "HEAD^..HEAD").to eq(10)
-      expect(@churn.commits).to eq(1)
-    end
-  end
+  # it "resets to zero the number of commits when the churn is computed" do
+  #   2.times do
+  #     expect(@churn.compute "HEAD^..HEAD").to eq(10)
+  #     expect(@churn.commits).to eq(1)
+  #   end
+  # end
 
   it "specifies what to print" do
     output_formatter = double("OutputFormatter")

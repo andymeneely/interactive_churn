@@ -50,6 +50,7 @@ class Churn
     ins_length = ins_length.to_i
 
     [del_pos, del_length, ins_pos, ins_length]
+    # [ins_pos, ins_length, del_pos, del_length] # => rugged change the order!!
   end
 
   # Template method to compute different types of churn metric.

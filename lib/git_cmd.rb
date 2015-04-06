@@ -1,4 +1,5 @@
 require 'open3'
+require 'rugged'
 
 # A class to execute `git log` and `git blame` command
 class GitCmd
@@ -28,8 +29,28 @@ class GitCmd
   # @param options [String] Options that `git log` understands, like <tt>"HEAD^", "HEAD^^..HEAD", "55ce17208d", "HEAD -- *.rb"</tt>,  etc.
   # @return [String] Result of the execution of `git log --ignore-all-space --reverse --unified=0command .
   def log options = ""
-    execute "log --ignore-all-space --reverse --unified=0 #{options} | " +
-            "grep -E '(#{REGEX_MATCH_COMMIT}|#{REGEX_MATCH_AUTHOR}|#{REGEX_MATCH_FILE}|#{REGEX_MATCH_PATCH_AT})'"
+    repo = Rugged::Repository.new(@wd)
+    walker = Rugged::Walker.new(repo)
+    walker.sorting(Rugged::SORT_REVERSE)
+    walker.push("master")
+    s = ""
+    walker.each do |commit|
+      s += "commit #{commit.oid}\n"
+      s += "Author: #{commit.author[:name]} <#{commit.author[:email]}>\n"
+      commit.diff(:context_lines => 0, :ignore_whitespace => true).each_line do |line|
+        if line.line_origin == :file_header
+          s += line.content.split(/\n/).first + "\n"
+        elsif line.line_origin == :hunk_header
+          i,ix,d,dx = line.content.split(/\n/).first.match(/^@@\s-(\d*),?(\d*)?\s\+(\d*),?(\d*)?\s@@/).captures
+          dx = (dx.empty?)? "" : ",#{dx}"
+          ix = (ix.empty?)? "" : ",#{ix}"
+          s += "@@ -#{d}#{dx} +#{i}#{ix} @@\n"
+          # s += line.content.split(/\n/).first + "\n"
+        end
+      end
+    end
+    walker.reset
+    s
   end
 
   # Runs +git blame+ command for a specific commit and for a given file. By default it runs blame for the entire file in HEAD.
