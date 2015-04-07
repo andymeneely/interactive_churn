@@ -83,9 +83,10 @@ class GitCmd
     result = nil
     begin
       Open3.popen3(GIT_CMD + sub_cmd) do |i, o, e, t|
+        result = o.read
         error = e.read
         raise StandardError, error unless (t.value.success? or error.empty?)
-        result = o.read
+        result
       end
     ensure
       Dir.chdir cwd
