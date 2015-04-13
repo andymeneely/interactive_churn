@@ -1,6 +1,5 @@
 #!/usr/bin/ruby
-
-require_relative "../lib/interactive_churn.rb"
+require 'interactive_churn/interactive_churn'
 # The git revision arg, i.e. "git log #{rev}", or e.g. git log abc456..def123
 
 gitlogarg = ARGV.empty? ? '' : ARGV[0]
