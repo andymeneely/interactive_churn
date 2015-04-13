@@ -11,7 +11,7 @@ class Churn
   # A string with a regular expresion to match a group with the author from `git log` line where author appears.
   AUTHOR       = /^Author:\s(.*[^\s])\s+</
   # A string with a regular expresion to match a group with the author from `git blame` line where author appears.
-  AUTHOR_BLAME = /\((.*[^\s])\s+\d\d\d\d/
+  AUTHOR_BLAME = /\((.*[^\s])\s+\d\d\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d/
   # A string with a regular expresion to match a group with the file from `git log` line where file appears.
   FILE         = /^diff\s--git\sa\/.*\sb\/(.*)$/
   # A string with a regular expresion to match groups for each number in the patch-at line from `git log`.
