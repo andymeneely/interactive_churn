@@ -7,7 +7,7 @@ describe "Churn command" do
           "        --json                       Return metric in json format\n" +
           "        --affected-lines             Compute affected lines\n" +
           "        --interactive-lines          Compute interactive lines\n"
-    output = %x[ churn --help]
+    output = %x[ ichurn --help]
     expect(output).to eq(msg)
   end
 end

@@ -1,8 +1,10 @@
 #!/usr/bin/ruby
+require 'interactive_churn/churn_cli'
 
-require_relative "../lib/interactive_churn.rb"
-# The git revision arg, i.e. "git log #{rev}", or e.g. git log abc456..def123
-
-gitlogarg = ARGV.empty? ? '' : ARGV[0]
-
-InteractiveChurn::get_data(gitlogarg)
+begin
+  puts ChurnCLI.run_with ARGV
+rescue OptionParser::ParseError => error
+  puts error
+  puts "(-h or --help will show valid options)"
+  exit 1
+end
