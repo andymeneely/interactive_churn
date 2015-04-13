@@ -1,4 +1,4 @@
-require 'churn'
+require 'interactive_churn/churn'
 require 'set'
 
 # A class responsible to compute interactive code churn metric.

@@ -1,4 +1,4 @@
-require 'churn'
+require 'interactive_churn/churn'
 
 # A class respomnsible to compute standard code churn metric.
 class ChurnStandard < Churn

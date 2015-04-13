@@ -1,4 +1,4 @@
-require 'churn'
+require 'interactive_churn/churn'
 
 # A class responsible to compute affected line code churn metric.
 class ChurnAffectedLine < Churn

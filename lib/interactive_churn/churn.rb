@@ -1,6 +1,6 @@
 require 'oj'
 require 'set'
-require 'git_cmd'
+require 'interactive_churn/git_cmd'
 
 # A base class with a template method to run an algorithm to process `git log` output to compute different code churn metrics.
 class Churn

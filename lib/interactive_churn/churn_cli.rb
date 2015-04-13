@@ -1,10 +1,10 @@
 require 'optparse'
 require 'interactive_churn/version'
-require 'text_formatter'
-require 'json_formatter'
-require 'churn_standard'
-require 'churn_interactive'
-require 'churn_affected_line'
+require 'interactive_churn/text_formatter'
+require 'interactive_churn/json_formatter'
+require 'interactive_churn/churn_standard'
+require 'interactive_churn/churn_interactive'
+require 'interactive_churn/churn_affected_line'
 
 # Class that represents the churn CLI and deals with the options to run the asked churn.
 class ChurnCLI

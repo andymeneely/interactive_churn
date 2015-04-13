@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-require 'churn_cli'
+require 'interactive_churn/churn_cli'
 
 begin
   puts ChurnCLI.run_with ARGV
